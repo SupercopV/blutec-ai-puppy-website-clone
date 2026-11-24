@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircle, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { MessageCircle, ChevronDown, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import VideoModal from '../components/VideoModal';
 import PupBuddy from '../components/PupBuddy';
 import { PUPPIES_DATA } from '../data/puppiesData';
@@ -9,6 +9,19 @@ import { SITE_CONFIG, FAQ_DATA } from '../data/siteData';
 export default function Home() {
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const [activeVideoPuppy, setActiveVideoPuppy] = useState(null);
+  const [trackPage, setTrackPage] = useState(0);
+  const trackRef = useRef(null);
+
+  const scrollTrack = (direction) => {
+    if (trackRef.current) {
+      const scrollAmount = trackRef.current.clientWidth * 0.75;
+      trackRef.current.scrollBy({
+        left: direction === 'next' ? scrollAmount : -scrollAmount,
+        behavior: 'smooth'
+      });
+      setTrackPage(direction === 'next' ? 1 : 0);
+    }
+  };
 
   // Lineup puppies for Hero Quilt
   const heroLineup = [
@@ -137,7 +150,7 @@ export default function Home() {
         style={{ '--sky-top': '#fff1d8', '--sky-bottom': '#fbe3b4' }}
       >
         <div className="tp-meet__stage">
-          <header className="tp-meet__head gutter">
+          <header className="tp-meet__head gutter flex items-center justify-between gap-4">
             <div>
               <h2 className="font-plush text-huge" id="meet-title">
                 Meet the pups
@@ -146,13 +159,51 @@ export default function Home() {
                 Real puppies, real photos, looking for their families right now.
               </p>
             </div>
-            <Link className="btn btn-primary shrink-0" to="/puppies">
-              See all available puppies
-            </Link>
+            
+            <div className="flex items-center gap-4">
+              {/* Carousel Pagination Controls matching video */}
+              <div className="hidden sm:flex items-center gap-2 bg-white/70 backdrop-blur-md px-3 py-1.5 rounded-full border-2 border-[#2a170e] shadow-[2px_3px_0px_#2a170e]">
+                <span className="font-scrawl text-xs font-bold text-[#5a3a28] px-1">
+                  {trackPage + 1} / 2
+                </span>
+                <button
+                  type="button"
+                  onClick={() => scrollTrack('prev')}
+                  disabled={trackPage === 0}
+                  className="w-7 h-7 rounded-full border border-[#2a170e] bg-white flex items-center justify-center hover:bg-[#fbe3b4] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  aria-label="Previous puppies"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5 text-[#2a170e]" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollTrack('next')}
+                  disabled={trackPage === 1}
+                  className="w-7 h-7 rounded-full border border-[#2a170e] bg-white flex items-center justify-center hover:bg-[#fbe3b4] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  aria-label="Next puppies"
+                >
+                  <ChevronRight className="w-3.5 h-3.5 text-[#2a170e]" />
+                </button>
+              </div>
+
+              <Link className="btn btn-primary shrink-0" to="/puppies">
+                See all available puppies
+              </Link>
+            </div>
           </header>
 
-          <div className="tp-meet__hall">
-            <ol aria-label="Puppies looking for a family" className="tp-meet__track">
+          <div className="tp-meet__hall overflow-hidden relative">
+            <ol 
+              ref={trackRef}
+              aria-label="Puppies looking for a family" 
+              className="tp-meet__track overflow-x-auto scroll-smooth flex items-end no-scrollbar"
+              onScroll={(e) => {
+                const maxScroll = e.target.scrollWidth - e.target.clientWidth;
+                if (maxScroll > 0) {
+                  setTrackPage(e.target.scrollLeft > maxScroll * 0.4 ? 1 : 0);
+                }
+              }}
+            >
               {PUPPIES_DATA.slice(0, 8).map((puppy, idx) => (
                 <li key={puppy.id} className="tp-door" data-open="true">
                   <Link 

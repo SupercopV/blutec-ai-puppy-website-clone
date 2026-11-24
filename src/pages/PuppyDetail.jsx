@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MessageCircle, ShieldCheck, Heart, ArrowLeft, Play, CheckCircle2, Send, Sparkles } from 'lucide-react';
+import { MessageCircle, ShieldCheck, Heart, ArrowLeft, Play, CheckCircle2, Send, Sparkles, Grid, X, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { PUPPIES_DATA } from '../data/puppiesData';
 import { SITE_CONFIG } from '../data/siteData';
 import VideoModal from '../components/VideoModal';
@@ -13,6 +13,7 @@ export default function PuppyDetail() {
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [showPhotoTour, setShowPhotoTour] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [formData, setFormData] = useState({
     name: '',
@@ -70,6 +71,16 @@ export default function PuppyDetail() {
                     className="w-full h-full object-cover"
                   />
                 </div>
+
+                {/* Show All Photos Button (matching Airbnb photo tour button in video) */}
+                <button
+                  type="button"
+                  onClick={() => setShowPhotoTour(true)}
+                  className="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-bold text-xs bg-white/95 text-[#2a170e] border-2 border-[#2a170e] shadow-md hover:bg-[#fff8ea] transition-all hover:scale-105 cursor-pointer"
+                >
+                  <Grid className="w-3.5 h-3.5 text-[#c2622b]" />
+                  <span>Show all photos</span>
+                </button>
 
                 {puppy.hasVideo && (
                   <button
@@ -302,6 +313,88 @@ export default function PuppyDetail() {
           </div>
         </section>
       </article>
+
+      {/* Full-Screen Categorized Photo Tour Modal (matching Airbnb video 0:05-0:15) */}
+      {showPhotoTour && (
+        <div className="fixed inset-0 z-[120] bg-white text-[#2a170e] flex flex-col overflow-y-auto animate-in fade-in duration-200">
+          {/* Header Bar */}
+          <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-[#2a170e]/15 px-6 py-4 flex items-center justify-between">
+            <button
+              onClick={() => setShowPhotoTour(false)}
+              className="inline-flex items-center gap-2 p-2 hover:bg-[#fff8ea] rounded-full transition-colors cursor-pointer font-semibold text-sm"
+              aria-label="Back to listing"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              <span>Back</span>
+            </button>
+            <span className="font-plush font-bold text-base sm:text-lg">
+              {puppy.name} · Photo tour
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  navigator.clipboard?.writeText(window.location.href);
+                  setToastMessage('Link copied to clipboard!');
+                  setTimeout(() => setToastMessage(''), 3000);
+                }}
+                className="p-2 hover:bg-[#fff8ea] rounded-full transition-colors cursor-pointer"
+                title="Share"
+              >
+                <Share2 className="w-4 h-4 text-[#5a3a28]" />
+              </button>
+              <button
+                onClick={() => setShowPhotoTour(false)}
+                className="p-2 hover:bg-[#fff8ea] rounded-full transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X className="w-5 h-5 text-[#5a3a28]" />
+              </button>
+            </div>
+          </div>
+
+          {/* Photo Gallery Tour Content */}
+          <div className="mx-auto max-w-4xl w-full px-4 py-8 space-y-12">
+            <div className="space-y-4">
+              <h2 className="font-plush text-2xl font-bold text-[#2a170e]">
+                Showroom Portraits & Photos
+              </h2>
+              <p className="font-scrawl text-sm text-[#8e3f15]">
+                Real, unedited photos of {puppy.name} taken in our Dubai showroom
+              </p>
+              
+              <div className="space-y-8 pt-4">
+                {gallery.map((img, i) => (
+                  <div key={i} className="space-y-2">
+                    <div className="rounded-3xl overflow-hidden border-2 border-[#2a170e] bg-[#fff8ea] shadow-[5px_7px_0px_#2a170e]">
+                      <img src={img} alt={`${puppy.name} portrait ${i + 1}`} className="w-full h-auto object-cover max-h-[85vh] mx-auto" />
+                    </div>
+                    <p className="text-xs sm:text-sm text-[#5a3a28] font-medium text-center">
+                      Photo {i + 1} of {gallery.length} · {puppy.name} ({puppy.breed}, {puppy.age})
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Actions in Tour */}
+            <div className="pt-8 border-t border-[#2a170e]/15 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="font-plush font-bold text-lg text-[#2a170e]">{puppy.name}</p>
+                <p className="text-xs text-[#5a3a28]">{puppy.breed} · {puppy.origin}</p>
+              </div>
+              <a
+                href={whatsappInquiryUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-whatsapp px-6 py-3 rounded-full text-sm font-bold flex items-center gap-2"
+              >
+                <MessageCircle className="w-4 h-4 fill-current" />
+                <span>Enquire about {puppy.name}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Video Modal */}
       {showVideoModal && (

@@ -1,13 +1,49 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircle, X } from 'lucide-react';
+import { MessageCircle, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { HAPPY_FAMILIES_DATA, SITE_CONFIG } from '../data/siteData';
 
 const TAPE_COLORS = ['#f6d79a', '#f9cdbf', '#d8eaee', '#eed8be', '#e2d8ea'];
 const TILTS = ['-2.2deg', '1.6deg', '-1.2deg', '2.4deg', '-1.8deg', '1.1deg', '-2.6deg', '1.9deg'];
 
+const CATEGORY_TAGS = [
+  { label: 'All memories', count: HAPPY_FAMILIES_DATA.length },
+  { label: 'Dubai families', count: 18 },
+  { label: 'Maltipoo', count: 9 },
+  { label: 'Pomeranian', count: 6 },
+  { label: 'Teacup', count: 7 },
+  { label: 'International delivery', count: 12 }
+];
+
 export default function HappyFamilies() {
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('All memories');
+
+  const filteredPhotos = HAPPY_FAMILIES_DATA.filter((item) => {
+    if (activeCategory === 'All memories') return true;
+    if (activeCategory === 'Maltipoo') return item.caption?.toLowerCase().includes('maltipoo');
+    if (activeCategory === 'Pomeranian') return item.caption?.toLowerCase().includes('pomeranian');
+    if (activeCategory === 'Teacup') return item.caption?.toLowerCase().includes('teacup') || item.caption?.toLowerCase().includes('tiny');
+    return true;
+  });
+
+  const activePhotoIndex = selectedPhoto 
+    ? filteredPhotos.findIndex(p => p.id === selectedPhoto.id)
+    : -1;
+
+  const handleNextPhoto = (e) => {
+    e.stopPropagation();
+    if (activePhotoIndex < filteredPhotos.length - 1) {
+      setSelectedPhoto(filteredPhotos[activePhotoIndex + 1]);
+    }
+  };
+
+  const handlePrevPhoto = (e) => {
+    e.stopPropagation();
+    if (activePhotoIndex > 0) {
+      setSelectedPhoto(filteredPhotos[activePhotoIndex - 1]);
+    }
+  };
 
   return (
     <main className="relative pt-[var(--header-h)] pb-24 outline-none min-h-screen">
@@ -26,10 +62,36 @@ export default function HappyFamilies() {
             </p>
           </header>
 
+          {/* Category Filter Pills (matching review category tags in video) */}
+          <div className="mt-8 flex flex-wrap gap-2.5 items-center">
+            {CATEGORY_TAGS.map((tag) => {
+              const isSelected = activeCategory === tag.label;
+              return (
+                <button
+                  key={tag.label}
+                  type="button"
+                  onClick={() => setActiveCategory(tag.label)}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold border-2 transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#2a170e] text-[#fffdf8] border-[#2a170e] shadow-[2px_3px_0px_#2a170e] -rotate-1'
+                      : 'bg-white text-[#2a170e] border-[#2a170e]/25 hover:border-[#2a170e] hover:bg-[#fff8ea]'
+                  }`}
+                >
+                  <span>{tag.label}</span>
+                  <span className={`text-[0.7rem] px-1.5 py-0.5 rounded-full ${
+                    isSelected ? 'bg-white/20 text-white' : 'bg-[#2a170e]/10 text-[#5a3a28]'
+                  }`}>
+                    {tag.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
           {/* Authentic Polaroid Masonry Wall */}
-          <div className="mt-16 md:mt-20">
+          <div className="mt-14 md:mt-16">
             <ul className="tp-wall" aria-label="Photos from TeddyPups families">
-              {HAPPY_FAMILIES_DATA.map((item, idx) => {
+              {filteredPhotos.map((item, idx) => {
                 const tilt = TILTS[idx % TILTS.length];
                 const tapeColor = TAPE_COLORS[idx % TAPE_COLORS.length];
                 const delayMs = (idx % 6) * 110;
@@ -114,23 +176,46 @@ export default function HappyFamilies() {
         </div>
       </section>
 
-      {/* Lightbox / Photo Modal */}
+      {/* Lightbox / Photo Modal with Prev & Next Navigation */}
       {selectedPhoto && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={() => setSelectedPhoto(null)}
         >
           <div 
             className="relative max-w-xl w-full bg-[#fffdf8] border-3 border-[#2a170e] rounded-3xl p-4 sm:p-6 shadow-[8px_12px_0px_#2a170e]"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Close button */}
             <button
               onClick={() => setSelectedPhoto(null)}
-              className="absolute -top-3 -right-3 w-10 h-10 bg-[#2a170e] text-white rounded-full flex items-center justify-center hover:bg-[#c2622b] transition-colors cursor-pointer shadow-md"
+              className="absolute -top-3 -right-3 w-10 h-10 bg-[#2a170e] text-white rounded-full flex items-center justify-center hover:bg-[#c2622b] transition-colors cursor-pointer shadow-md z-10"
               aria-label="Close modal"
             >
               <X className="w-5 h-5" />
             </button>
+
+            {/* Previous Photo Button */}
+            {activePhotoIndex > 0 && (
+              <button
+                onClick={handlePrevPhoto}
+                className="absolute left-2 sm:-left-5 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#fffdf8] border-2 border-[#2a170e] rounded-full flex items-center justify-center shadow-md hover:bg-[#fbe3b4] transition-all cursor-pointer z-10"
+                aria-label="Previous photo"
+              >
+                <ChevronLeft className="w-5 h-5 text-[#2a170e]" />
+              </button>
+            )}
+
+            {/* Next Photo Button */}
+            {activePhotoIndex < filteredPhotos.length - 1 && (
+              <button
+                onClick={handleNextPhoto}
+                className="absolute right-2 sm:-right-5 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#fffdf8] border-2 border-[#2a170e] rounded-full flex items-center justify-center shadow-md hover:bg-[#fbe3b4] transition-all cursor-pointer z-10"
+                aria-label="Next photo"
+              >
+                <ChevronRight className="w-5 h-5 text-[#2a170e]" />
+              </button>
+            )}
 
             <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-[#fff8ea] border border-[#2a170e]/20 mb-4">
               <img
@@ -147,7 +232,7 @@ export default function HappyFamilies() {
             )}
             {selectedPhoto.family && (
               <p className="font-scrawl text-sm text-[#8e3f15] text-center mt-1">
-                🐾 {selectedPhoto.family}
+                🐾 {selectedPhoto.family} ({activePhotoIndex + 1} of {filteredPhotos.length})
               </p>
             )}
           </div>
