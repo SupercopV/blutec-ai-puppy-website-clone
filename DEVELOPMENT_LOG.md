@@ -208,3 +208,41 @@ When recording your Loom video walkthrough for the hiring team, highlight the fo
    - Demonstrate working navigation, real-time breed/origin/search filters on `/puppies`, video modal, the "Dear TeddyPups" inline letterform with validation, and the floating action dock.
 6. **Production Readiness**:
    - Show the passing `npm run build` output and explain the inclusion of `vercel.json` with SPA URL rewrites for seamless deployment.
+
+---
+
+## 8. Header, Footer, Puppies Filter Notepad & Landing Page Animations Update
+
+### Header Recreation (Exact Match to Reference Site)
+- **Scalloped Bottom Hem SVG**: Integrated `<svg class="tp-header__hem">` with a repeating pattern (`pattern id="tp-hem"` width 44 height 14) rendering the scalloped cloth hem along the bottom of the header.
+- **Active Navigation Indicator**: Built custom paw print indicator (`<svg class="tp-nav-link__paw">`) positioned directly below the active nav link with scale and opacity transition, matching `original.css`.
+- **Dynamic Scroll States**: Connected `data-scrolled` and `data-home` attributes so the header hem appears on scroll on the homepage and remains persistent across internal pages.
+- **Header Actions**: WhatsApp direct button (`btn-whatsapp`) and mobile dialog menu with `where to, friend?` drawer.
+
+### Footer Recreation (Exact Match to Reference Site)
+- **Night Atmosphere Styling**: Implemented `--night: #24130b` dark cocoa background with the top hill curve SVG (`.tp-footer__hill`, `viewBox="0 0 1440 80"`).
+- **Twinkling Stars & Crescent Moon**: Implemented `.tp-moon` crescent with inset box-shadow and 9 positioned `.tp-twinkle` star SVGs with staggered CSS animation delays.
+- **Woven Basket Pup Mascot**: Built `.tp-basket` containing `.tp-basket__back` hollow rim, animated snug puppy mascot (`<PupBuddy facing="right" pose="snug" />`), and front woven wicker body (`.tp-basket__front`).
+- **Footer Navigation & Socials**: "Explore" links column with "Happy families" highlighted in honey, "Say hello" column with Dubai address and pill buttons for Instagram, TikTok, and Facebook.
+- **Bottom Bar**: Brand emblem + "© 2026 TeddyPups U.A.E." on left, and hand-scrawled "every puppy is family" on the right.
+
+### Puppies Page Filter Notepad (`.tp-sketchpad`)
+- **Authentic Paper & Washi Tape**: Styled container with hand-drawn rounded borders, drop-shadow (`5px 7px #2a170e1f`), and tilted pastel washi tape (`.tp-sketchpad:before`).
+- **3-Row Sticker Chip Matrix**:
+  1. `where`: [Everywhere] (active default), [Imported], [Korean Teacup].
+  2. `breed`: [Maltipoo], [Pomeranian], [Poodle], [Cavapoo], [Shih Tzu].
+  3. `boy or girl`: [Boys], [Girls].
+- **State & Animation**: Controlled `aria-pressed` states on `.tp-sticker-chip` buttons, toggling cocoa fill with subtle rotation and hop transitions.
+- **Self-Portrait Frame**: Positioned circular portrait on top right (`.tp-sketchbook__self`) featuring Teddy with caption "self-portrait".
+
+### Homepage Mascot Animations
+- Integrated all 8 interactive `pup-stop` mascot instances across homepage scenes:
+  1. Hero Quilt: Mascot peeking out from behind the quilt (`data-pose="peek"`).
+  2. Scene 2 (Showroom Doors): Mascot sitting on the showroom floor (`data-pose="sit"`).
+  3. Scene 3 (Origins Fork): Mascot sitting at the local/imported junction.
+  4. Scene 4 (Chat): Mascot sitting beside the WhatsApp consultation console.
+  5. Scene 5 (Passport): Mascot sitting next to the health guarantee booklet.
+  6. Scene 6 (Dusk): Mascot sitting beside the happy families wall.
+  7. Scene 7 (Night FAQ): Mascot with `?` wonder badge tilting head (`data-act="tilt"`).
+  8. Scene 8 (Cozy House): Mascot bowing on the "welcome home" doormat (`data-pose="bow"`).
+
