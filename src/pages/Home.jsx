@@ -45,14 +45,96 @@ function ImageWithLoader({ src, alt, className = '', style = {}, bgColor = '#f8e
 }
 
 export default function Home() {
-  const [trackPage, setTrackPage] = useState(0);
-  const trackRef = useRef(null);
+  // Scene 2: Meet the pups pinned horizontal scroll state
+  const [isMeetPinned, setIsMeetPinned] = useState(false);
+  const [meetMaxScroll, setMeetMaxScroll] = useState(0);
+  const [meetTrackX, setMeetTrackX] = useState(0);
+  const meetContainerRef = useRef(null);
+  const meetHallRef = useRef(null);
+  const meetTrackRef = useRef(null);
 
   // Puppy Journey interactive phone animation state
   const [journeyStep, setJourneyStep] = useState(0);
   const [journeyTyping, setJourneyTyping] = useState(false);
   const journeyStepsRef = useRef(null);
   const prevJourneyStepRef = useRef(-1);
+
+  // Measure Scene 2 hallway layout and track dimensions
+  useEffect(() => {
+    const updateMeetLayout = () => {
+      const isDesktop = window.innerWidth >= 1024;
+      setIsMeetPinned(isDesktop);
+      if (isDesktop && meetTrackRef.current && meetHallRef.current) {
+        const stageEl = meetHallRef.current.parentElement;
+        const headEl = stageEl?.querySelector('.tp-meet__head');
+        const headHeight = headEl ? headEl.offsetTop + headEl.offsetHeight : 0;
+        const floorEl = meetHallRef.current.querySelector('.tp-meet__floor');
+        const floorHeight = floorEl ? floorEl.offsetHeight : 0;
+        const stageH = stageEl?.clientHeight || window.innerHeight;
+        const doorW = Math.max(128, Math.min(256, 0.15 * window.innerWidth, (stageH - headHeight - floorHeight - 40) / 1.3));
+        meetHallRef.current.style.setProperty('--door-w', `${doorW.toFixed(0)}px`);
+        const scrollWidth = meetTrackRef.current.scrollWidth;
+        const max = Math.max(0, scrollWidth - window.innerWidth + 250);
+        setMeetMaxScroll(max);
+      } else {
+        meetHallRef.current?.style.removeProperty('--door-w');
+      }
+    };
+
+    updateMeetLayout();
+    const timer = setTimeout(updateMeetLayout, 400);
+    window.addEventListener('resize', updateMeetLayout);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateMeetLayout);
+    };
+  }, []);
+
+  // Handle scroll-driven horizontal track translation & 3D door opening
+  useEffect(() => {
+    if (!isMeetPinned || !meetContainerRef.current) return;
+
+    const handleMeetScroll = () => {
+      const rect = meetContainerRef.current.getBoundingClientRect();
+      const pinDistance = 0.8 * meetMaxScroll;
+      if (pinDistance <= 0) return;
+
+      let progress = 0;
+      if (rect.top <= 0) {
+        progress = Math.min(1, Math.max(0, -rect.top / pinDistance));
+      }
+
+      const currentX = -progress * meetMaxScroll;
+      setMeetTrackX(currentX);
+
+      if (meetTrackRef.current) {
+        meetTrackRef.current.style.transform = `translateX(${currentX.toFixed(1)}px)`;
+      }
+
+      if (meetHallRef.current) {
+        meetHallRef.current.style.setProperty('--floor-x', `${(currentX % 176).toFixed(1)}px`);
+      }
+
+      // Update 3D swinging door data-open state
+      if (meetTrackRef.current) {
+        const doors = meetTrackRef.current.children;
+        const threshold = 0.36 * window.innerWidth;
+        for (let i = 0; i < doors.length; i++) {
+          const door = doors[i];
+          if (door.classList.contains('tp-door--all')) continue;
+          const doorLeft = door.offsetLeft + currentX;
+          const isOpen = doorLeft < threshold;
+          if (door.dataset.open !== String(isOpen)) {
+            door.dataset.open = String(isOpen);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleMeetScroll, { passive: true });
+    handleMeetScroll();
+    return () => window.removeEventListener('scroll', handleMeetScroll);
+  }, [isMeetPinned, meetMaxScroll]);
 
   useEffect(() => {
     if (!journeyStepsRef.current) return;
@@ -103,7 +185,7 @@ export default function Home() {
   };
 
   return (
-    <main id="main" className="relative pt-[var(--header-h)] outline-none overflow-x-hidden" tabIndex="-1">
+    <main id="main" className="relative pt-[var(--header-h)] outline-none overflow-x-clip" tabIndex="-1">
       {/* Scroll-driven continuous mascot puppy runner */}
       <PupRunner />
 
@@ -238,121 +320,106 @@ export default function Home() {
         data-pup-scene="true"
         data-tone="light"
         className="tp-scene tp-meet"
+        data-pinned={isMeetPinned ? "true" : undefined}
         style={{ '--sky-top': '#fff1d8', '--sky-bottom': '#fbe3b4' }}
         aria-labelledby="meet-title"
       >
-        <div className="tp-meet__stage">
-          <header className="tp-meet__head gutter flex items-center justify-between gap-4">
-            <div>
-              <h2 id="meet-title" className="font-plush text-huge">
-                Meet the pups
-              </h2>
-              <p className="text-lede mt-3 max-w-[44ch] text-[var(--ink-soft)]">
-                Real puppies, real photos, looking for their families right now.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-4">
-              {/* Carousel Pagination Controls */}
-              <div className="hidden sm:flex items-center gap-2 bg-white/70 backdrop-blur-md px-3 py-1.5 rounded-full border-2 border-[#2a170e] shadow-[2px_3px_0px_#2a170e]">
-                <span className="font-scrawl text-xs font-bold text-[#5a3a28] px-1">
-                  {trackPage + 1} / 2
-                </span>
-                <button
-                  type="button"
-                  onClick={() => scrollTrack('prev')}
-                  disabled={trackPage === 0}
-                  className="w-7 h-7 rounded-full border border-[#2a170e] bg-white flex items-center justify-center hover:bg-[#fbe3b4] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                  aria-label="Previous puppies"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5 text-[#2a170e]" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollTrack('next')}
-                  disabled={trackPage === 1}
-                  className="w-7 h-7 rounded-full border border-[#2a170e] bg-white flex items-center justify-center hover:bg-[#fbe3b4] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                  aria-label="Next puppies"
-                >
-                  <ChevronRight className="w-3.5 h-3.5 text-[#2a170e]" />
-                </button>
+        <div
+          ref={meetContainerRef}
+          data-pin-range="true"
+          style={{
+            height: isMeetPinned ? `calc(100vh + ${Math.round(0.8 * meetMaxScroll)}px)` : undefined,
+            '--pinned': isMeetPinned ? 1 : 0
+          }}
+        >
+          <div className="tp-meet__stage">
+            <header className="tp-meet__head gutter flex items-center justify-between gap-4">
+              <div>
+                <h2 id="meet-title" className="font-plush text-huge">
+                  Meet the pups
+                </h2>
+                <p className="text-lede mt-3 max-w-[44ch] text-[var(--ink-soft)]">
+                  Real puppies, real photos, looking for their families right now.
+                </p>
               </div>
 
               <Link className="btn btn-primary shrink-0" to="/puppies">
                 See all available puppies
               </Link>
-            </div>
-          </header>
+            </header>
 
-          <div className="tp-meet__hall overflow-hidden relative">
-            <ol
-              ref={trackRef}
-              aria-label="Puppies looking for a family"
-              className="tp-meet__track overflow-x-auto scroll-smooth flex items-end no-scrollbar"
-              onScroll={(e) => {
-                const maxScroll = e.target.scrollWidth - e.target.clientWidth;
-                if (maxScroll > 0) {
-                  setTrackPage(e.target.scrollLeft > maxScroll * 0.4 ? 1 : 0);
-                }
-              }}
-            >
-              {MEET_DOORS.map((door) => {
-                if (door.isAll) {
+            <div ref={meetHallRef} className="tp-meet__hall">
+              <ol
+                ref={meetTrackRef}
+                style={isMeetPinned ? { transform: `translateX(${meetTrackX}px)` } : undefined}
+                className="tp-meet__track"
+                data-treadmill="true"
+                aria-label="Puppies looking for a family"
+              >
+                {MEET_DOORS.map((door) => {
+                  if (door.isAll) {
+                    return (
+                      <li key="door-all" className="tp-door tp-door--all" data-open="true">
+                        <Link className="tp-door__link" to={door.href}>
+                          <span className="tp-door__frame tp-door__frame--all">
+                            <span className="font-plush tp-door__all">{door.name}</span>
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  }
+
                   return (
-                    <li key="door-all" className="tp-door tp-door--all" data-open="true">
-                      <Link className="tp-door__link" to={door.href}>
-                        <span className="tp-door__frame tp-door__frame--all">
-                          <span className="font-plush tp-door__all">{door.name}</span>
+                    <li key={door.id} className="tp-door" data-open={isMeetPinned ? "false" : "true"}>
+                      <Link
+                        className="tp-door__link"
+                        to={door.href}
+                        style={{ '--door': door.doorColor }}
+                      >
+                        <span className="tp-door__plate">
+                          <span className="font-plush tp-door__name">{door.name}</span>
+                          <span className="tp-door__meta">{door.meta}</span>
+                        </span>
+
+                        <span className="tp-door__frame">
+                          <span className="tp-door__room">
+                            <ImageWithLoader
+                              src={door.img}
+                              alt={door.alt || door.name}
+                              bgColor={door.bgColor}
+                              objectPosition={door.objectPosition}
+                              className="w-full h-full"
+                            />
+                          </span>
+
+                          <span aria-hidden="true" className="tp-door__way">
+                            <span className="tp-door__leaf">
+                              <svg viewBox="0 0 64 64" className="tp-door__peephole" aria-hidden="true" fill="currentColor">
+                                <path d={PAW_PATH} />
+                              </svg>
+                              <span className="tp-door__knob" />
+                            </span>
+                          </span>
+
+                          <span className="tp-door__tag font-scrawl">{door.tag || 'Available'}</span>
                         </span>
                       </Link>
                     </li>
                   );
-                }
+                })}
+              </ol>
 
-                return (
-                  <li key={door.id} className="tp-door" data-open="true">
-                    <Link
-                      className="tp-door__link"
-                      to={door.href}
-                      style={{ '--door': door.doorColor }}
-                    >
-                      <span className="tp-door__plate">
-                        <span className="font-plush tp-door__name">{door.name}</span>
-                        <span className="tp-door__meta">{door.meta}</span>
-                      </span>
-
-                      <span className="tp-door__frame">
-                        <span className="tp-door__room">
-                          <ImageWithLoader
-                            src={door.img}
-                            alt={door.alt || door.name}
-                            bgColor={door.bgColor}
-                            objectPosition={door.objectPosition}
-                            className="w-full h-full"
-                          />
-                        </span>
-
-                        <span aria-hidden="true" className="tp-door__way">
-                          <span className="tp-door__leaf">
-                            <svg viewBox="0 0 64 64" className="tp-door__peephole" aria-hidden="true" fill="currentColor">
-                              <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                            </svg>
-                            <span className="tp-door__knob" />
-                          </span>
-                        </span>
-
-                        <span className="tp-door__tag font-scrawl">{door.tag || 'Available'}</span>
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ol>
-
-            {/* Showroom Floor & Mascot Sit Stop */}
-            <div aria-hidden="true" className="tp-meet__floor" />
-            <div data-pup-stop="true" data-pose="sit" data-facing="right" className="pup-stop tp-meet__teddy">
-              <PupBuddy facing="right" pose="sit" />
+              {/* Showroom Wooden Floor & Mascot Stop */}
+              <div aria-hidden="true" className="tp-meet__floor" />
+              <div
+                data-pup-stop="true"
+                data-pose={isMeetPinned ? "walk" : "sit"}
+                data-act={isMeetPinned ? "treadmill" : undefined}
+                data-facing="right"
+                className="pup-stop tp-meet__teddy"
+              >
+                <PupBuddy facing="right" pose={isMeetPinned ? "walk" : "sit"} />
+              </div>
             </div>
           </div>
         </div>

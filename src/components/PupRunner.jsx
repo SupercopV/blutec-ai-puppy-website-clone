@@ -38,11 +38,32 @@ export default function PupRunner() {
       const measuredWidth = Math.max(rect.width || 0, idx === 0 ? 340 : 220);
       const scale = measuredWidth / 300;
 
+      // Check if inside a pinned section (Scene 2 Meet)
+      const meetScene = el.closest('.tp-meet[data-pinned="true"]');
+      const pinRangeEl = meetScene ? meetScene.querySelector('[data-pin-range="true"]') : null;
+      let isPinned = false;
+      let pinFrom = 0;
+      let pinTo = 0;
+
+      if (meetScene && pinRangeEl) {
+        const pinRect = pinRangeEl.getBoundingClientRect();
+        pinFrom = pinRect.top + scrollY;
+        pinTo = pinFrom + Math.max(0, pinRect.height - window.innerHeight);
+        if (pinTo > pinFrom + 30) {
+          isPinned = true;
+        }
+      }
+
       return {
         idx,
         el,
         left: rect.left,
         top: rect.top + scrollY,
+        screenLeft: rect.left,
+        screenTop: rect.top,
+        isPinned,
+        pinFrom,
+        pinTo,
         width: measuredWidth,
         scale,
         pose,
@@ -86,63 +107,103 @@ export default function PupRunner() {
       animFrame.current = requestAnimationFrame(() => {
         animFrame.current = null;
         const currentY = window.scrollY;
-        const viewportCenter = currentY + window.innerHeight * 0.55;
         const stops = stopsRef.current;
         if (stops.length === 0) return;
 
-        // Find closest stops
-        let currentStop = stops[0];
-        let nextStop = stops[0];
-        let progress = 0;
-
-        for (let i = 0; i < stops.length - 1; i++) {
-          if (viewportCenter >= stops[i].top && viewportCenter <= stops[i + 1].top) {
-            currentStop = stops[i];
-            nextStop = stops[i + 1];
-            const distance = nextStop.top - currentStop.top;
-            progress = distance > 0 ? (viewportCenter - currentStop.top) / distance : 0;
-            break;
-          } else if (viewportCenter < stops[0].top) {
-            currentStop = stops[0];
-            nextStop = stops[0];
-            progress = 0;
-          } else if (viewportCenter > stops[stops.length - 1].top) {
-            currentStop = stops[stops.length - 1];
-            nextStop = stops[stops.length - 1];
-            progress = 1;
-          }
-        }
-
-        // Interpolate target position and scale
-        const targetLeft = currentStop.left + (nextStop.left - currentStop.left) * progress;
-        const targetTop = currentStop.top + (nextStop.top - currentStop.top) * progress - currentY;
-        const targetScale = currentStop.scale + (nextStop.scale - currentStop.scale) * progress;
-
-        const isMoving = Math.abs(currentY - lastScrollY.current) > 3;
+        const isMoving = Math.abs(currentY - lastScrollY.current) > 2;
         const movingDown = currentY > lastScrollY.current;
         lastScrollY.current = currentY;
 
-        // Determine pose, facing, and layer behindness
-        let activePose = currentStop.pose;
-        let activeFacing = currentStop.facing;
-        let isBehind = false;
+        let targetLeft = stops[0].left;
+        let targetTop = stops[0].top - currentY;
+        let targetScale = stops[0].scale;
+        let activePose = stops[0].pose;
+        let activeFacing = stops[0].facing;
+        let isBehind = stops[0].behind;
         let bubble = '';
+        let isRunning = false;
 
-        if (isMoving && currentStop !== nextStop && progress > 0.08 && progress < 0.92) {
-          activePose = 'sit';
-          activeFacing = targetLeft < window.innerWidth * 0.5 ? 'right' : 'left';
+        // Check if currently inside a pinned stop (like Scene 2 Meet)
+        const pinnedStop = stops.find((s) => s.isPinned && currentY >= s.pinFrom && currentY <= s.pinTo);
+
+        if (pinnedStop) {
+          // Inside pinned hallway: dog stays anchored at 14vw on the floor
+          const liveRect = pinnedStop.el ? pinnedStop.el.getBoundingClientRect() : null;
+          targetLeft = liveRect ? liveRect.left : pinnedStop.screenLeft;
+          targetTop = liveRect ? liveRect.top : pinnedStop.screenTop;
+          targetScale = liveRect && liveRect.width > 0 ? liveRect.width / 300 : pinnedStop.scale;
+          activePose = 'walk';
+          activeFacing = 'right';
           isBehind = false;
+          isRunning = isMoving;
         } else {
-          // Docked at a stop
-          if (progress <= 0.1) {
+          // Find which interval currentY falls into
+          let currentStop = stops[0];
+          let nextStop = stops[0];
+          let progress = 0;
+
+          for (let i = 0; i < stops.length - 1; i++) {
+            const sFrom = stops[i];
+            const sTo = stops[i + 1];
+
+            const rangeStart = sFrom.isPinned ? sFrom.pinTo : (i === 0 ? stops[0].top : stops[i].top - window.innerHeight * 0.25);
+            const rangeEnd = sTo.isPinned ? sTo.pinFrom : (stops[i + 1].top - window.innerHeight * 0.35);
+
+            if (currentY >= rangeStart && currentY <= rangeEnd) {
+              currentStop = sFrom;
+              nextStop = sTo;
+              const dist = Math.max(1, rangeEnd - rangeStart);
+              progress = Math.min(1, Math.max(0, (currentY - rangeStart) / dist));
+              break;
+            } else if (currentY < rangeStart && i === 0) {
+              currentStop = stops[0];
+              nextStop = stops[0];
+              progress = 0;
+              break;
+            } else if (i === stops.length - 2 && currentY > rangeEnd) {
+              currentStop = stops[stops.length - 1];
+              nextStop = stops[stops.length - 1];
+              progress = 1;
+            }
+          }
+
+          if (currentStop === nextStop) {
+            const liveRect = currentStop.el ? currentStop.el.getBoundingClientRect() : null;
+            targetLeft = liveRect ? liveRect.left : currentStop.left;
+            targetTop = liveRect ? liveRect.top : (currentStop.top - currentY);
+            targetScale = liveRect && liveRect.width > 0 ? liveRect.width / 300 : currentStop.scale;
             activePose = currentStop.pose;
             activeFacing = currentStop.facing;
             isBehind = currentStop.behind;
-            if (currentStop.idx === 0) bubble = 'peekaboo!';
-          } else if (progress >= 0.9) {
-            activePose = nextStop.pose;
-            activeFacing = nextStop.facing;
-            isBehind = nextStop.behind;
+            if (currentStop.idx === 0 && currentY < 80) bubble = 'peekaboo!';
+          } else {
+            // Live DOM coordinates for buttery transition
+            const fromRect = currentStop.el ? currentStop.el.getBoundingClientRect() : null;
+            const toRect = nextStop.el ? nextStop.el.getBoundingClientRect() : null;
+
+            const fromLeft = fromRect ? fromRect.left : currentStop.left;
+            const fromTop = fromRect ? fromRect.top : (currentStop.top - currentY);
+            const toLeft = toRect ? toRect.left : nextStop.left;
+            const toTop = toRect ? toRect.top : (nextStop.top - currentY);
+
+            targetLeft = fromLeft + (toLeft - fromLeft) * progress;
+            targetTop = fromTop + (toTop - fromTop) * progress;
+            targetScale = currentStop.scale + (nextStop.scale - currentStop.scale) * progress;
+
+            if (progress <= 0.08) {
+              activePose = currentStop.pose;
+              activeFacing = currentStop.facing;
+              isBehind = currentStop.behind;
+            } else if (progress >= 0.92) {
+              activePose = nextStop.pose;
+              activeFacing = nextStop.facing;
+              isBehind = nextStop.behind;
+            } else {
+              activePose = 'sit';
+              activeFacing = targetLeft < window.innerWidth * 0.5 ? 'right' : 'left';
+              isBehind = false;
+              isRunning = isMoving;
+            }
           }
         }
 
@@ -153,7 +214,7 @@ export default function PupRunner() {
           pose: activePose,
           facing: activeFacing,
           behind: isBehind,
-          isRunning: isMoving && currentStop !== nextStop,
+          isRunning,
           bubble
         });
 
