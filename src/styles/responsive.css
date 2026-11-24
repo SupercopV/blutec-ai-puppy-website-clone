@@ -1,0 +1,51 @@
+/* Mobile and Tablet Specific Styles */
+@media (max-width: 768px) {
+  :root {
+    --header-h: 4rem;
+    --bar-h: 4.5rem;
+  }
+
+  .tp-header {
+    padding-inline: 1rem;
+  }
+
+  .tp-hero__sun {
+    width: 90vw;
+    top: 2%;
+  }
+
+  .tp-letterform {
+    padding: 1.5rem;
+  }
+
+  .tp-ticket__link {
+    min-height: 8.5rem;
+  }
+
+  .tp-tickets {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .tp-floating-bar {
+    width: calc(100% - 2rem);
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .tp-floating-bar .hide-on-mobile {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .tp-tickets {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1025px) {
+  .tp-tickets {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
