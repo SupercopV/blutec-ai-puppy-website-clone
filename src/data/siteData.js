@@ -124,60 +124,60 @@ export const FAQ_DATA = [
 
 export const HAPPY_FAMILIES_DATA = [
   {
-    id: 1,
-    puppyName: 'Lulu',
-    caption: 'Lulu 🧸 with her new mummy ❤️',
-    image: '/puppies/asset_556841b9.jpg',
-    family: 'Sarah M., Dubai Marina'
+    "id": 1,
+    "puppyName": "Lulu",
+    "caption": "Lulu \ud83e\uddf8 with her new mummy \u2764\ufe0f",
+    "image": "/puppies/asset_207692.jpeg",
+    "family": "Sarah M., Dubai Marina"
   },
   {
-    id: 2,
-    puppyName: 'Teddy',
-    caption: 'Adorable Maltipoo baby 🧸❤️',
-    image: '/puppies/asset_4b8cfb82.webp',
-    family: 'The Al-Mansoor Family, Palm Jumeirah'
+    "id": 2,
+    "puppyName": "Teddy",
+    "caption": "Adorable Maltipoo baby \ud83e\uddf8\u2764\ufe0f",
+    "image": "/puppies/asset_217798.jpeg",
+    "family": "The Al-Mansoor Family, Palm Jumeirah"
   },
   {
-    id: 3,
-    puppyName: 'Mochi',
-    caption: 'My new teddy puppy 🥰🧸',
-    image: '/puppies/asset_50f0ae67.jpg',
-    family: 'Elena K., Downtown Dubai'
+    "id": 3,
+    "puppyName": "Mochi",
+    "caption": "My new teddy puppy \ud83e\udd70\ud83e\uddf8",
+    "image": "/puppies/asset_676678.jpeg",
+    "family": "Elena K., Downtown Dubai"
   },
   {
-    id: 4,
-    puppyName: 'Coco & Leo',
-    caption: 'Our new puppies 🧸🥰🤗',
-    image: '/puppies/asset_14376a21.jpg',
-    family: 'Rashid & Noora, Emirates Hills'
+    "id": 4,
+    "puppyName": "Coco & Leo",
+    "caption": "Our new puppies \ud83e\uddf8\ud83e\udd70\ud83e\udd17",
+    "image": "/puppies/asset_540897.jpeg",
+    "family": "Rashid & Noora, Emirates Hills"
   },
   {
-    id: 5,
-    puppyName: 'Bella',
-    caption: 'New puppy 🧸😍',
-    image: '/puppies/asset_7ce7e7bd.jpg',
-    family: 'Dr. Chloe V., Jumeirah 1'
+    "id": 5,
+    "puppyName": "Bella",
+    "caption": "New puppy \ud83e\uddf8\ud83d\ude0d",
+    "image": "/puppies/asset_705681.jpeg",
+    "family": "Dr. Chloe V., Jumeirah 1"
   },
   {
-    id: 6,
-    puppyName: 'The Trio',
-    caption: 'Gang of 3 😍🧸',
-    image: '/puppies/asset_0b2c0c0d.jpg',
-    family: 'Tariq A., Dubai Hills Estate'
+    "id": 6,
+    "puppyName": "The Trio",
+    "caption": "Gang of 3 \ud83d\ude0d\ud83e\uddf8",
+    "image": "/puppies/asset_967112.jpeg",
+    "family": "Tariq A., Dubai Hills Estate"
   },
   {
-    id: 7,
-    puppyName: 'Ollie',
-    caption: 'So happy 😍😍',
-    image: '/puppies/asset_2b5dcece.jpg',
-    family: 'Amira & Zayn, Arabian Ranches'
+    "id": 7,
+    "puppyName": "Ollie",
+    "caption": "So happy \ud83d\ude0d\ud83d\ude0d",
+    "image": "/puppies/asset_157032.jpeg",
+    "family": "Amira & Zayn, Arabian Ranches"
   },
   {
-    id: 8,
-    puppyName: 'Simba',
-    caption: 'New pup 🤗💫',
-    image: '/puppies/asset_556841b9.jpg',
-    family: 'Charlotte P., DIFC'
+    "id": 8,
+    "puppyName": "Simba",
+    "caption": "New pup \ud83e\udd17\ud83d\udcab",
+    "image": "/puppies/asset_578082.jpeg",
+    "family": "Charlotte P., DIFC"
   }
 ];
 

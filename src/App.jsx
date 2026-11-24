@@ -4,6 +4,8 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import FloatingBar from './components/FloatingBar';
 import ScrollToTop from './components/ScrollToTop';
+import Curtain from './components/Curtain';
+import useScrollReveal from './hooks/useScrollReveal';
 
 import Home from './pages/Home';
 import Puppies from './pages/Puppies';
@@ -14,9 +16,12 @@ import GoneHome from './pages/GoneHome';
 import FAQ from './pages/FAQ';
 import Contact from './pages/Contact';
 
-export default function App() {
+function AppContent() {
+  useScrollReveal();
+
   return (
-    <Router>
+    <>
+      <Curtain />
       <ScrollToTop />
       <div className="flex flex-col min-h-screen bg-[#fffdf8] text-[#2a170e]">
         <Header />
@@ -38,6 +43,14 @@ export default function App() {
         <FloatingBar />
         <Footer />
       </div>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

@@ -13,11 +13,11 @@ export default function Home() {
   const heroLineup = [
     { slug: 'maltipoo-max-male', name: 'Max', breed: 'Maltipoo', img: '/puppies/asset_70474.webp', x: '8%', w: '8.6rem', peek: '0.62', tilt: '-5deg', i: 0 },
     { slug: 'korean-teacup-maltipoo-female', name: 'Korean Teacup', breed: 'Maltipoo', img: '/puppies/asset_316919.jpg', x: '22%', w: '8.2rem', peek: '0.58', tilt: '3deg', i: 1 },
-    { slug: 'korean-teacup-poodle-female', name: 'Korean Teacup', breed: 'Poodle', img: '/puppies/asset_359302.jpg', x: '36%', w: '8.8rem', peek: '0.65', tilt: '-2deg', i: 2 },
-    { slug: 'maltipoo-cavapoo-male', name: 'Maltipoo & Cavapoo', breed: 'Cavapoo', img: '/puppies/asset_200548.jpg', x: '50%', w: '9.2rem', peek: '0.6', tilt: '4deg', i: 3 },
-    { slug: 'toy-poodle-male-female', name: 'Toy Poodle', breed: 'Poodle', img: '/puppies/asset_400624.jpg', x: '64%', w: '8.4rem', peek: '0.55', tilt: '-3deg', i: 4 },
-    { slug: 'maltipoo-female-2', name: 'Maltipoo', breed: 'Maltipoo', img: '/puppies/asset_54838.jpg', x: '78%', w: '8.6rem', peek: '0.62', tilt: '2deg', i: 5 },
-    { slug: 'pomeranian-female', name: 'Pomeranian', breed: 'Pomeranian', img: '/puppies/asset_365543.jpg', x: '92%', w: '8rem', peek: '0.56', tilt: '-4deg', i: 6 }
+    { slug: 'korean-teacup-poodle-female', name: 'Korean Teacup', breed: 'Poodle', img: '/puppies/asset_743447.jpg', x: '36%', w: '8.8rem', peek: '0.65', tilt: '-2deg', i: 2 },
+    { slug: 'maltipoo-cavapoo-male', name: 'Maltipoo & Cavapoo', breed: 'Cavapoo', img: '/puppies/asset_681913.jpg', x: '50%', w: '9.2rem', peek: '0.6', tilt: '4deg', i: 3 },
+    { slug: 'toy-poodle-male-female', name: 'Toy Poodle', breed: 'Poodle', img: '/puppies/asset_228768.jpg', x: '64%', w: '8.4rem', peek: '0.55', tilt: '-3deg', i: 4 },
+    { slug: 'maltipoo-female-2', name: 'Maltipoo', breed: 'Maltipoo', img: '/puppies/asset_488281.jpg', x: '78%', w: '8.6rem', peek: '0.62', tilt: '2deg', i: 5 },
+    { slug: 'pomeranian-female', name: 'Pomeranian', breed: 'Pomeranian', img: '/puppies/asset_991191.jpg', x: '92%', w: '8rem', peek: '0.56', tilt: '-4deg', i: 6 }
   ];
 
   // Meet the Pups Doors
@@ -25,11 +25,11 @@ export default function Home() {
 
   // Dusk Memories Polaroids
   const duskPolaroids = [
-    { id: 1, name: 'Lulu 🧸 with her new mummy ❤️', img: '/puppies/asset_351586.jpg', tilt: '-2.2deg', tape: '#f6d79a' },
-    { id: 2, name: 'Adorable Maltipoo baby 🧸❤️', img: '/puppies/asset_391444.jpg', tilt: '1.8deg', tape: '#f8c2b0' },
-    { id: 3, name: 'My new teddy puppy 🥰🧸', img: '/puppies/asset_400624.jpg', tilt: '-1.4deg', tape: '#d6e8f8' },
-    { id: 4, name: 'Our new puppies 🧸🥰🤗', img: '/puppies/asset_489622.jpg', tilt: '2.5deg', tape: '#f6d79a' },
-    { id: 5, name: 'New puppy 🧸😍', img: '/puppies/asset_200548.jpg', tilt: '-2deg', tape: '#f8c2b0' }
+    { id: 1, name: 'Lulu 🧸 with her new mummy ❤️', img: '/puppies/asset_207692.jpeg', tilt: '-2.2deg', tape: '#f6d79a' },
+    { id: 2, name: 'Adorable Maltipoo baby 🧸❤️', img: '/puppies/asset_217798.jpeg', tilt: '1.8deg', tape: '#f8c2b0' },
+    { id: 3, name: 'My new teddy puppy 🥰🧸', img: '/puppies/asset_676678.jpeg', tilt: '-1.4deg', tape: '#d6e8f8' },
+    { id: 4, name: 'Our new puppies 🧸🥰🤗', img: '/puppies/asset_540897.jpeg', tilt: '2.5deg', tape: '#f6d79a' },
+    { id: 5, name: 'New puppy 🧸😍', img: '/puppies/asset_705681.jpeg', tilt: '-2deg', tape: '#f8c2b0' }
   ];
 
   return (
@@ -167,14 +167,26 @@ export default function Home() {
                           loading="lazy" 
                         />
                       </span>
-                      <svg aria-hidden="true" className="tp-door__peephole" viewBox="0 0 40 40">
-                        <circle cx="20" cy="20" r="12" fill="none" stroke="currentColor" strokeWidth="2.5" />
-                        <circle cx="20" cy="20" r="4" fill="currentColor" />
-                      </svg>
+                      <span aria-hidden="true" className="tp-door__way">
+                        <span className="tp-door__leaf">
+                          <svg viewBox="0 0 64 64" className="tp-door__peephole" aria-hidden="true" fill="currentColor">
+                            <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
+                          </svg>
+                          <span className="tp-door__knob" />
+                        </span>
+                      </span>
+                      <span className="tp-door__tag font-scrawl">Available</span>
                     </span>
                   </Link>
                 </li>
               ))}
+              <li className="tp-door tp-door--all" data-open="true">
+                <Link className="tp-door__link" to="/puppies">
+                  <span className="tp-door__frame tp-door__frame--all">
+                    <span className="font-plush tp-door__all">Meet them all</span>
+                  </span>
+                </Link>
+              </li>
             </ol>
           </div>
         </div>
@@ -212,7 +224,7 @@ export default function Home() {
                   <span className="tp-window__glass">
                     <img 
                       alt="Puppy in Dubai showroom" 
-                      src="/puppies/asset_443424.jpg" 
+                      src="/puppies/asset_79947.jpg" 
                       loading="lazy" 
                     />
                   </span>
@@ -467,19 +479,21 @@ export default function Home() {
           <div className="tp-photowall__wall gutter">
             <ul aria-label="Photos from TeddyPups families" className="tp-photowall__prints flex flex-wrap gap-6 justify-center">
               {duskPolaroids.map((item, idx) => (
-                <li key={item.id}>
-                  <div 
-                    className="tp-polaroid cursor-pointer transition-transform hover:scale-105" 
-                    style={{ '--tilt': item.tilt, '--tape': item.tape, transform: `rotate(${item.tilt})` }}
-                  >
-                    <span aria-hidden="true" className="tp-polaroid__tape" />
-                    <span className="tp-polaroid__photo block aspect-square w-48 sm:w-56 overflow-hidden rounded-lg bg-white p-2 shadow-lg">
-                      <img src={item.img} alt={item.name} className="w-full h-full object-cover rounded" />
+                <li key={item.id} data-reveal="true" style={{ '--d': `${idx * 110}ms` }}>
+                  <button type="button" className="tp-photowall__print" aria-label={`Open photo: ${item.name}`}>
+                    <span 
+                      className="tp-polaroid" 
+                      style={{ '--tilt': item.tilt, '--tape': item.tape, '--i': idx }}
+                    >
+                      <span aria-hidden="true" className="tp-tape tp-tape--center" />
+                      <span className="tp-polaroid__photo">
+                        <img src={item.img} alt={item.name} loading="lazy" />
+                      </span>
+                      <span className="tp-polaroid__caption font-scrawl">
+                        {item.name}
+                      </span>
                     </span>
-                    <span className="tp-polaroid__caption font-scrawl text-xs text-[#2a170e] font-bold block pt-2 text-center">
-                      {item.name}
-                    </span>
-                  </div>
+                  </button>
                 </li>
               ))}
             </ul>

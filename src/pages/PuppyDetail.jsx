@@ -5,6 +5,7 @@ import { PUPPIES_DATA } from '../data/puppiesData';
 import { SITE_CONFIG } from '../data/siteData';
 import VideoModal from '../components/VideoModal';
 import Toast from '../components/Toast';
+import PupBuddy from '../components/PupBuddy';
 
 export default function PuppyDetail() {
   const { slug } = useParams();
@@ -190,8 +191,17 @@ export default function PuppyDetail() {
               </p>
             </div>
 
-            {/* OFFICIAL PUPPY PASSPORT */}
-            <div className="mt-8 bg-white border-2 border-[#2a170e] rounded-2xl p-6 shadow-[4px_6px_0px_#2a170e]">
+            {/* OFFICIAL PUPPY PASSPORT / SWINGING BRASS TAG */}
+            <div 
+              className="tp-tag tp-board mt-12 !rounded-[2.2rem_2.2rem_2.2rem_0.6rem] !p-7 md:!p-8 relative bg-white border-2 border-[#2a170e] shadow-[4px_6px_0px_#2a170e]" 
+              data-reveal="true"
+            >
+              <span aria-hidden="true" className="tp-tag__ring" />
+              
+              <div className="absolute -top-[4.2rem] right-4 w-28 hidden sm:block pointer-events-none">
+                <PupBuddy facing="right" />
+              </div>
+
               <div className="flex items-center gap-2 font-plush font-bold text-lg text-[#2a170e] mb-4">
                 <ShieldCheck className="w-5 h-5 text-[#c2622b]" />
                 <span>TeddyPups Official Passport & Care</span>

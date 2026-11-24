@@ -16,9 +16,7 @@ export const PUPPIES_DATA = [
     "price": "AED 16,500",
     "primaryImage": "/puppies/asset_70474.webp",
     "gallery": [
-      "/puppies/asset_70474.webp",
-      "/puppies/asset_316919.jpg",
-      "/puppies/asset_743447.jpg"
+      "/puppies/asset_70474.webp"
     ],
     "washColor": "#fbe3b4",
     "tilt": "1.2deg",
@@ -47,8 +45,7 @@ export const PUPPIES_DATA = [
     "price": "AED 24,000",
     "primaryImage": "/puppies/asset_316919.jpg",
     "gallery": [
-      "/puppies/asset_316919.jpg",
-      "/puppies/asset_70474.webp"
+      "/puppies/asset_316919.jpg"
     ],
     "washColor": "#f9cdbf",
     "tilt": "-1.5deg",
@@ -220,10 +217,9 @@ export const PUPPIES_DATA = [
     "color": "Rich Chestnut & White Chest",
     "weight": "950g",
     "price": "AED 19,500",
-    "primaryImage": "/_next/image?url=%2Fmedia%2FhXj9k4Q5mU1a%2F4a8b7c6d5e%2Fcopper-main.jpg&w=3840&q=75",
+    "primaryImage": "/puppies/asset_531322.jpg",
     "gallery": [
-      "/_next/image?url=%2Fmedia%2FhXj9k4Q5mU1a%2F4a8b7c6d5e%2Fcopper-main.jpg&w=3840&q=75",
-      "/puppies/asset_70474.webp"
+      "/puppies/asset_531322.jpg"
     ],
     "washColor": "#fbe3b4",
     "tilt": "1.47deg",
@@ -250,8 +246,10 @@ export const PUPPIES_DATA = [
     "color": "Tricolor Gold & White",
     "weight": "900g",
     "price": "AED 12,000",
-    "primaryImage": "/_next/image?url=%2Fmedia%2Fshitzu-f%2Fthumb.jpg&w=3840&q=75",
-    "gallery": [],
+    "primaryImage": "/puppies/asset_517658.jpeg",
+    "gallery": [
+      "/puppies/asset_517658.jpeg"
+    ],
     "washColor": "#f9cdbf",
     "tilt": "-1.0deg",
     "personality": "Royal, calm, affectionate and very loving.",
@@ -277,8 +275,10 @@ export const PUPPIES_DATA = [
     "color": "Black & White Mask",
     "weight": "920g",
     "price": "AED 12,000",
-    "primaryImage": "/_next/image?url=%2Fmedia%2Fshitzu-m%2Fthumb.jpg&w=3840&q=75",
-    "gallery": [],
+    "primaryImage": "/puppies/asset_44486.jpg",
+    "gallery": [
+      "/puppies/asset_44486.jpg"
+    ],
     "washColor": "#bfddf5",
     "tilt": "1.1deg",
     "personality": "Charming, loyal, and always happy to see you.",
@@ -304,8 +304,10 @@ export const PUPPIES_DATA = [
     "color": "Butter Cream",
     "weight": "850g",
     "price": "AED 16,000",
-    "primaryImage": "/_next/image?url=%2Fmedia%2Fmaltipoo-f1%2Fthumb.jpg&w=3840&q=75",
-    "gallery": [],
+    "primaryImage": "/puppies/asset_719504.jpg",
+    "gallery": [
+      "/puppies/asset_719504.jpg"
+    ],
     "washColor": "#fbe3b4",
     "tilt": "-0.7deg",
     "personality": "Cheerful, energetic, very snuggly.",
@@ -331,8 +333,10 @@ export const PUPPIES_DATA = [
     "color": "Apricot",
     "weight": "750g",
     "price": "AED 16,500",
-    "primaryImage": "/_next/image?url=%2Fmedia%2Fmaltipoo-f%2Fthumb.jpg&w=3840&q=75",
-    "gallery": [],
+    "primaryImage": "/puppies/asset_300938.jpg",
+    "gallery": [
+      "/puppies/asset_300938.jpg"
+    ],
     "washColor": "#f9cdbf",
     "tilt": "1.3deg",
     "personality": "Gentle and curious explorer.",
@@ -358,8 +362,10 @@ export const PUPPIES_DATA = [
     "color": "Snow White",
     "weight": "550g (ultra teacup)",
     "price": "AED 26,000",
-    "primaryImage": "/_next/image?url=%2Fmedia%2Fpom-k1%2Fthumb.jpg&w=3840&q=75",
-    "gallery": [],
+    "primaryImage": "/puppies/asset_179441.jpg",
+    "gallery": [
+      "/puppies/asset_179441.jpg"
+    ],
     "washColor": "#bfddf5",
     "tilt": "-1.4deg",
     "personality": "Like a living snowflake, sweet and delicate.",
@@ -385,8 +391,10 @@ export const PUPPIES_DATA = [
     "color": "Cream Pearl",
     "weight": "600g",
     "price": "AED 25,000",
-    "primaryImage": "/_next/image?url=%2Fmedia%2Fpom-k%2Fthumb.jpg&w=3840&q=75",
-    "gallery": [],
+    "primaryImage": "/puppies/asset_773702.jpg",
+    "gallery": [
+      "/puppies/asset_773702.jpg"
+    ],
     "washColor": "#fbe3b4",
     "tilt": "0.9deg",
     "personality": "Playful, bright, loves being held.",
@@ -412,8 +420,10 @@ export const PUPPIES_DATA = [
     "color": "Orange Sable",
     "weight": "620g",
     "price": "AED 24,000",
-    "primaryImage": "/_next/image?url=%2Fmedia%2Fpom-m%2Fthumb.jpg&w=3840&q=75",
-    "gallery": [],
+    "primaryImage": "/puppies/asset_198456.jpg",
+    "gallery": [
+      "/puppies/asset_198456.jpg"
+    ],
     "washColor": "#f9cdbf",
     "tilt": "-1.1deg",
     "personality": "Bold, spirited little prince with a huge heart.",

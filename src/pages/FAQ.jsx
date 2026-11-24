@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
-import { ChevronDown, Search, MessageCircle, HelpCircle } from 'lucide-react';
+import { HelpCircle, MessageCircle } from 'lucide-react';
+import PupBuddy from '../components/PupBuddy';
 import { FAQ_DATA, SITE_CONFIG } from '../data/siteData';
+
+const TILTS = ['-1.6deg', '1.2deg', '-1.1deg', '1.8deg', '-0.9deg', '1.4deg', '-1.5deg', '0.8deg', '-1.2deg'];
+const PINS = [
+  'var(--color-toffee)',
+  'var(--color-sky-deep)',
+  'var(--color-berry)',
+  'var(--color-honey)',
+  'var(--color-mint)',
+  'var(--color-toffee-deep)',
+  'var(--color-sky-deep)',
+  'var(--color-berry)',
+  'var(--color-honey)'
+];
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(0);
@@ -12,88 +26,137 @@ export default function FAQ() {
   );
 
   return (
-    <main className="relative pt-[var(--header-h)] pb-24 outline-none bg-[#fffdf8] min-h-screen">
-      {/* Top Banner */}
-      <section className="bg-[#fff8ea] border-b-2 border-[#2a170e] py-14 px-4 sm:px-6 lg:px-8 text-center">
-        <div className="mx-auto max-w-4xl">
-          <p className="font-scrawl text-base text-[#8e3f15] font-semibold flex items-center justify-center gap-1.5">
-            <HelpCircle className="w-4 h-4 text-[#c2622b]" />
-            <span>9 notes on the board</span>
+    <main className="relative pt-[var(--header-h)] pb-24 outline-none min-h-screen">
+      <div className="gutter mx-auto max-w-[110rem] pb-24 pt-10 md:pt-16">
+        {/* Top Header */}
+        <header className="max-w-[50rem]">
+          <p className="font-scrawl text-lg text-toffee-ink" data-reveal="true">
+            9 notes on the board
           </p>
-          <h1 className="font-plush text-4xl sm:text-6xl font-extrabold text-[#2a170e] mt-1 mb-4">
+          <h1 className="font-plush text-giant" data-reveal="true">
             Questions & answers
           </h1>
-          <p className="text-base sm:text-lg text-[#5a3a28] max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lede mt-5 max-w-[44ch] text-cocoa-soft" data-reveal="true">
             Can't find what you're looking for? Message us on WhatsApp — our team is available 24/7.
           </p>
-        </div>
-      </section>
+        </header>
 
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 pt-12">
-        {/* Search Bar */}
-        <div className="relative mb-8">
-          <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-[#5a3a28]/60" />
-          <input
-            type="text"
-            placeholder="Type a question (e.g. vaccinations, delivery, showroom)..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-[#2a170e] bg-white text-sm text-[#2a170e] placeholder:text-[#5a3a28]/50 focus:outline-none focus:ring-2 focus:ring-[#c2622b] shadow-[4px_5px_0px_#2a170e]"
-          />
-        </div>
+        {/* Authentic Sticky Notes Board */}
+        <div className="mt-12 md:mt-16">
+          <div className="tp-notes">
+            {/* Side Search & Mascot */}
+            <aside className="tp-notes__side" aria-label="Find a question">
+              <label htmlFor="faq-search" className="font-scrawl tp-notes__label">
+                sniff out a question
+              </label>
+              <div className="tp-notes__search">
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="tp-notes__lens">
+                  <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" strokeWidth="2.5" />
+                  <path d="m15.5 15.5 5 5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+                <input
+                  id="faq-search"
+                  type="search"
+                  placeholder="delivery, Korea, vaccinated…"
+                  autoComplete="off"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
 
-        {/* FAQs Accordion */}
-        <div className="space-y-4">
-          {filteredFaqs.length > 0 ? (
-            filteredFaqs.map((faq, index) => {
-              const isOpen = openIndex === index;
-              return (
-                <div
-                  key={index}
-                  className="bg-white border-2 border-[#2a170e] rounded-2xl overflow-hidden shadow-[4px_6px_0px_#2a170e] transition-all"
-                >
+              <p className="tp-notes__count" aria-live="polite">
+                {filteredFaqs.length} {filteredFaqs.length === 1 ? 'note' : 'notes'} on the board
+              </p>
+
+              <div className="tp-notes__teddy hidden md:block">
+                <span aria-hidden="true" className="tp-notes__bubble font-plush">
+                  <span className="tp-notes__q">?</span>
+                  <span className="tp-notes__a">!</span>
+                </span>
+                <PupBuddy facing="right" />
+              </div>
+            </aside>
+
+            {/* Sticky Notes Grid */}
+            <div className="tp-notes__board">
+              <ul className="tp-notes__list">
+                {filteredFaqs.map((faq, index) => {
+                  const isOpen = openIndex === index;
+                  const tilt = TILTS[index % TILTS.length];
+                  const pin = PINS[index % PINS.length];
+
+                  return (
+                    <li
+                      key={index}
+                      className="tp-note"
+                      data-reveal="true"
+                      style={{
+                        '--tilt': tilt,
+                        '--pin': pin,
+                        '--i': index
+                      }}
+                    >
+                      <span aria-hidden="true" className="tp-note__pin" />
+                      
+                      <h2 className="tp-note__q">
+                        <button
+                          type="button"
+                          aria-expanded={isOpen}
+                          onClick={() => setOpenIndex(isOpen ? -1 : index)}
+                          className="w-full text-left flex items-center justify-between cursor-pointer"
+                        >
+                          <span className="font-plush-text">{faq.q}</span>
+                          <span aria-hidden="true" className="tp-note__chevron" />
+                        </button>
+                      </h2>
+
+                      <div 
+                        className="tp-note__answer" 
+                        style={{ display: isOpen ? 'block' : 'none' }}
+                      >
+                        <div className="tp-note__flap">
+                          <p>{faq.a}</p>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              {filteredFaqs.length === 0 && (
+                <div className="bg-[#fff8ea] border-2 border-dashed border-[#2a170e]/30 rounded-3xl p-10 text-center">
+                  <HelpCircle className="w-8 h-8 text-[#c2622b] mx-auto mb-2" />
+                  <p className="font-plush font-bold text-lg text-[#2a170e]">
+                    No answers matched your search
+                  </p>
+                  <p className="text-sm text-[#5a3a28] mt-1 mb-4">
+                    Feel free to message our team directly on WhatsApp!
+                  </p>
                   <button
-                    onClick={() => setOpenIndex(isOpen ? -1 : index)}
-                    className="w-full text-left px-6 py-4 flex items-center justify-between gap-4 font-plush font-bold text-lg text-[#2a170e] cursor-pointer"
+                    onClick={() => setSearchQuery('')}
+                    className="btn btn-primary px-6 py-2 rounded-full text-xs font-semibold"
                   >
-                    <span>{faq.q}</span>
-                    <ChevronDown className={`w-5 h-5 text-[#c2622b] transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
+                    Clear search
                   </button>
-                  {isOpen && (
-                    <div className="px-6 pb-5 pt-1 text-sm sm:text-base text-[#5a3a28] leading-relaxed border-t border-[#2a170e]/10">
-                      {faq.a}
-                    </div>
-                  )}
                 </div>
-              );
-            })
-          ) : (
-            <div className="bg-[#fff8ea] border-2 border-dashed border-[#2a170e]/30 rounded-2xl p-8 text-center">
-              <p className="font-plush font-bold text-lg text-[#2a170e]">No answers matched your search</p>
-              <p className="text-xs text-[#5a3a28] mt-1 mb-4">Feel free to message our team directly on WhatsApp!</p>
-              <button
-                onClick={() => setSearchQuery('')}
-                className="btn btn-primary px-6 py-2 rounded-full text-xs font-semibold"
-              >
-                Clear search
-              </button>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Still Have Questions CTA */}
-        <div className="mt-14 bg-[#fff8ea] border-2 border-[#2a170e] rounded-3xl p-6 sm:p-8 text-center shadow-[5px_7px_0px_#2a170e]">
-          <h3 className="font-plush text-xl font-bold text-[#2a170e] mb-1">
+        {/* Bottom CTA Banner */}
+        <div className="mt-20 bg-[#fff8ea] border-3 border-[#2a170e] rounded-3xl p-8 sm:p-12 text-center max-w-3xl mx-auto shadow-[6px_8px_0px_#2a170e]">
+          <h3 className="font-plush text-2xl sm:text-3xl font-extrabold text-[#2a170e] mb-2">
             Still have questions?
           </h3>
-          <p className="text-sm text-[#5a3a28] mb-4">
+          <p className="text-sm sm:text-base text-[#5a3a28] max-w-xl mx-auto mb-6">
             Our puppy concierge is happy to guide you 24/7 on WhatsApp.
           </p>
           <a
             href={SITE_CONFIG.whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn btn-whatsapp px-6 py-2.5 rounded-full font-bold text-sm inline-flex items-center gap-2"
+            className="btn btn-whatsapp px-8 py-3 rounded-full font-bold text-sm shadow-[0_4px_0px_#2a170e] inline-flex items-center gap-2"
           >
             <MessageCircle className="w-4 h-4 fill-current" />
             <span>Chat on WhatsApp</span>

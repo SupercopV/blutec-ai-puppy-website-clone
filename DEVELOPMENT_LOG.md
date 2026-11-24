@@ -56,16 +56,17 @@ Through comprehensive DOM and RSC stream analysis, the full site architecture wa
 ### 2.2 Component Hierarchy
 ```
 App
-├── Header (Sticky navigation, animated paw hover, mobile drawer)
+├── Curtain (Scalloped blanket transition curtain with animated running puppy & paw prints)
 ├── ScrollToTop (Scroll reset on route changes)
+├── Header (Sticky navigation, animated paw hover, mobile drawer)
 ├── Routes
-│   ├── Home (8 distinct narrative sections)
-│   ├── Puppies (Multi-parameter filterable catalog)
-│   ├── PuppyDetail (Storybook presentation, gallery, specs, enquiry)
+│   ├── Home (8 distinct narrative sections, 3D doors, hero quilt, photowall)
+│   ├── Puppies (Sketchbook catalogue with authentic .tp-sketch cards & filters)
+│   ├── PuppyDetail (Storybook presentation, gallery, swinging brass tag, PupBuddy)
 │   ├── HowItWorks (Two ways home, delivery & collection, guarantees)
-│   ├── HappyFamilies (Polaroid photo wall)
-│   ├── GoneHome (Boarding pass ticket collection)
-│   ├── FAQ (Searchable accordion)
+│   ├── HappyFamilies (Masonry polaroid photo wall with paw prints & lightbox)
+│   ├── GoneHome (Boarding pass ticket collection with perforated borders)
+│   ├── FAQ (Notice board with pushpin sticky notes and PupBuddy mascot)
 │   └── Contact (Interactive postcard letterform)
 ├── FloatingBar (Persistent mobile/desktop quick action dock)
 ├── VideoModal (Simulated live video preview dialog)
@@ -87,30 +88,59 @@ Unlike standard generic contact forms with stacked inputs, the reference website
 - Designed a "Post my letter" submit button with animated loading states and an automatic confirmation toast notification.
 
 ### 3.2 Storybook Puppy Profiles (`/puppies/:slug`)
-Each puppy is not merely an e-commerce product; they are presented with an individual narrative chapter:
+Each puppy is presented with an individual narrative chapter:
 - Dynamic route `/puppies/:slug` matching slugs like `copper-male`, `korean-teacup-maltipoo-female`, and `maltipoo-max-male`.
 - Interactive photo switcher supporting multiple images and video clips.
-- A "Puppy Passport" component clearly presenting UAE vet health certifications, vaccination status, microchip information, and comprehensive warranties.
+- A "Puppy Passport" component rendered as a swinging brass luggage tag (`.tp-tag`, `animation: tp-tag-swing`) with the mascot puppy (`PupBuddy.jsx`) perched on top.
+- Detailed specifications table: Breed, Gender, Age, Status, Color, Adult Weight, Origin, and Price.
 
 ### 3.3 Boarding Pass Tickets (`/gone-home`)
 For puppies that have already joined their forever homes, the site renders them as vintage travel tickets:
 - Styled with notched circular borders and perforated vertical dividers (`border-dashed`).
 - Includes departure location ("Dubai showroom" vs. "TeddyPups"), puppy name, breed, gender, and "Admit One" stub.
-
-### 3.4 Watercolor Tilt Effects
-Puppy cards on the homepage and catalog feature subtle random rotations (`--tilt: 1.47deg`, `-1.1deg`) and pastel background wash fills (`#fbe3b4`, `#f9cdbf`, `#bfddf5`), mimicking hand-drawn watercolor sketches in a scrapbook.
+- Features smooth `clip-path` slide-in entry animation (`tp-ticket`).
 
 ---
 
-## 4. Challenges Encountered & Solutions
+## 4. Animation & Motion Architecture
+
+### 4.1 Signature Curtain & Running Mascot (`Curtain.jsx` & `RunningPuppy.jsx`)
+- **Discovery**: In the reference site, a full-viewport scalloped blanket (`.tp-curtain`) covers the screen during initial boot and route transitions, revealing the content with a smooth lift (`tp-curtain-lift`). Across the blanket, an articulated cartoon puppy trots leaving paw prints (`.tp-curtain__prints`).
+- **Implementation**:
+  - Reconstructed the complete articulated SVG containing `tp-runner` with shadow, legs (`tp-runner__leg--bf`, `tp-runner__leg--ff`, `tp-runner__leg--bn`, `tp-runner__leg--fn`), tail, bobbing head, and twitching ears.
+  - Linked native CSS keyframes (`tp-runner-x`, `tp-runner-leg-a`, `tp-runner-leg-b`, `tp-runner-bob`, `tp-runner-wag`, `tp-runner-ear`).
+  - Integrated into `App.jsx` with lifecycle states (`intro` -> `idle`, and route change transitions).
+
+### 4.2 Scroll-Driven IntersectionObserver System (`useScrollReveal.js`)
+- **Discovery**: The reference site uses `data-reveal="true"`, `data-armed="true"`, and `data-revealed="true"` attributes to stage and trigger animations as elements enter the viewport.
+- **Implementation**:
+  - Authored a custom hook `useScrollReveal.js` watching `[data-reveal]`, `.tp-sketch`, `.tp-note`, `.tp-tag`, `.tp-ticket`, and `.tp-wall__item`.
+  - On mount, elements receive `data-armed="true"`, setting their initial CSS state (pre-transformed, zero opacity, or clipped).
+  - When the element intersects the viewport (`threshold: 0.12, rootMargin: '0px 0px -30px 0px'`), it receives `data-revealed="true"`, smoothly initiating keyframe animations without jank or cumulative layout shifts.
+
+### 4.3 3D Perspective Showroom Doors
+- In Scene 2 (`Home.jsx`), the showroom doors use CSS 3D perspective (`perspective: 700px; transform-origin: 0;`).
+- On hover or when `data-open="true"`, `.tp-door__leaf` rotates open (`rotateY(78deg)`), revealing the puppy inside their cozy room behind the door.
+
+### 4.4 Authentic Sketchbook Cards (`.tp-sketch`)
+- Each card in `/puppies` features:
+  - Circular clip-path mask (`.tp-sketch__photo`)
+  - Watercolor wash SVG behind the photo (`.tp-sketch__wash`)
+  - Retraced ink outlines with hand-drawn character (`.tp-sketch__ink`, `.tp-sketch__line`)
+  - Playful doodles that hop when hovered (`tp-doodle-hop`)
+  - Alternating staggered vertical offsets (`.tp-sketches > li:nth-child(2n) { translate: 0 2.4rem }`).
+
+---
+
+## 5. Challenges Encountered & Solutions
 
 ### Challenge 1: Next.js App Router RSC Payload Extraction
-- **Issue**: The original website is a Next.js server-rendered application. Simple static HTML scraping missed dynamically streamed props and state embedded within `self.__next_f.push(...)` chunks.
+- **Issue**: The original website is a Next.js server-rendered application. Static HTML scraping missed dynamically streamed props and state embedded within `self.__next_f.push(...)` chunks.
 - **Solution**: Developed a custom Python extraction script (`inspect_rsc.py` and `extract_all_puppies.py`) that parsed React Server Component (RSC) serialized trees, successfully retrieving the complete dataset of 15 available puppies, their exact specs, stories, and image URLs.
 
-### Challenge 2: Asset Availability & Third-Party Reliance
-- **Issue**: Relying on remote URLs from `https://puppy.instabizweb.com/_next/image?url=...` creates third-party dependencies, rate limits, and potential future 404s.
-- **Solution**: Created `download_all_assets.py` which resolved 258 URL variants and downloaded all 129 unique high-resolution images locally into `public/puppies/` and `public/brand/logo.png`. Created an automated mapping script (`update_dataset_images.py`) ensuring zero broken images.
+### Challenge 2: Asset Availability & Hash Determinism
+- **Issue**: Early scrapers used Python's non-deterministic `hash()` for local filenames, resulting in hash mismatches across different script runs.
+- **Solution**: Built `scripts/analysis/image_url_map.json` mapping original media URLs to clean canonical files in `public/puppies/`. Ran `patch_datasets_cleanly.py` ensuring every single referenced image exists on disk (verified: 25/25 active dataset paths exist).
 
 ### Challenge 3: Lucide React Missing Brand Icons
 - **Issue**: `Instagram` icon was not exported in the installed version of `lucide-react`, causing Rollup build errors during `npm run build`.
@@ -122,11 +152,11 @@ Puppy cards on the homepage and catalog feature subtle random rotations (`--tilt
 
 ---
 
-## 5. Testing & Quality Assurance Performed
+## 6. Testing & Quality Assurance Performed
 
 1. **Production Build Verification**:
    - Command: `npm run build`
-   - Result: Successful build in 3.81s (`dist/index.html` 1.19 kB, `index.css` 146.28 kB, `index.js` 273.58 kB).
+   - Result: Successful build in 2.90s (`dist/index.html` 1.19 kB, `index.css` 146.28 kB, `index.js` 312.32 kB).
    - Exit code: 0, 0 compiler warnings.
 
 2. **Navigation & Deep Linking**:
@@ -142,36 +172,18 @@ Puppy cards on the homepage and catalog feature subtle random rotations (`--tilt
    - Tested scroll restoration on page change (always resets to top).
 
 3. **Interactive Features**:
-   - Mobile hamburger menu opens and closes smoothly.
+   - Curtain lifts smoothly with running puppy and paw prints on initial mount.
    - Breed and origin filters in `/puppies` update visible puppy cards in real time.
    - Search input dynamically filters by name, breed, or color.
    - Clicking "▶ video" launches the VideoModal preview dialog.
    - FAQ items open and close independently with Chevron rotation.
    - Contact letterform performs input validation and triggers a toast notification on submission.
+   - Polaroid wall opens lightbox photo modal.
 
 4. **Responsive Testing**:
    - **Mobile (375px - 480px)**: Compact header, collapsible drawer, single-column cards, floating quick action dock.
    - **Tablet (768px - 1024px)**: 2-column grid for puppies and tickets.
    - **Desktop (1280px - 1920px)**: Full 4-column layout, sticky storybook gallery, dual-column contact layout.
-
----
-
-## 6. AI Development Tools & Prompts Used
-
-### 6.1 Tools Utilized
-- **Google Antigravity IDE (Gemini 3.8 Flash)**: High-speed reasoning, codebase inspection, multi-tool orchestration.
-- **PowerShell / Terminal Tooling**: Build automation, file system management, package auditing.
-- **Python 3.13 Scrapers**: BeautifulSoup4 and urllib for HTML/CSS/RSC analysis and asset downloading.
-
-### 6.2 Key Prompts & Invocations
-1. **Initial Inspection Prompt**:
-   > *"Navigate to https://puppy.instabizweb.com/. Inspect the visual design, branding, logo, colors, font families, navigation bar, hero section, and all content sections down to the footer. Capture every section in detail, check all links, interactive elements, and typography."*
-2. **Data & RSC Stream Parsing Prompt**:
-   > *"Extract all puppy cards, FAQs, customer testimonials, and boarding passes from the scraped Next.js RSC chunks and save them into clean structured JSON datasets."*
-3. **Asset Resolution Prompt**:
-   > *"Download all 129 images locally into public/ and map them into puppiesData.js so the application is 100% self-sufficient and offline-resilient."*
-4. **Build Optimization Prompt**:
-   > *"Verify npm run build, resolve any missing icon exports, and configure vercel.json for seamless single-page routing."*
 
 ---
 
@@ -186,9 +198,13 @@ When recording your Loom video walkthrough for the hiring team, highlight the fo
    - Emphasize that in line with requirements, you did not introduce an unnecessary backend, database, or server; instead, you created a fast, clean, modular React + Vite architecture.
 3. **100% Local Asset Independence**:
    - Point out that all 120+ photos and brand logos were downloaded directly into `public/`, ensuring high performance, zero CDN failures, and zero broken image links.
-4. **Pixel-Accurate Design System**:
-   - Show how you matched the exact editorial typography (`Fraunces`, `Figtree`, and `Shantell Sans`), custom color palette (`--color-milk`, `--color-cocoa`, `--color-toffee`), watercolor wash cards with subtle tilt rotations, and custom animated paw hover indicators.
-5. **Interactive Polish**:
-   - Demonstrate the working mobile navigation drawer, real-time breed/origin/search filters on `/puppies`, the video preview modal, the "Dear TeddyPups" inline letterform with validation, and the floating action dock.
+4. **Pixel-Accurate Design System & Animations**:
+   - Demonstrate the signature scalloped opening curtain with the running mascot puppy.
+   - Show how the IntersectionObserver scroll reveal arms elements and triggers animations on scroll.
+   - Show the 3D perspective doors on the homepage that swing open to reveal puppies.
+   - Show the hand-drawn sketchbook cards with ink retraces, watercolor washes, and doodle hopping.
+   - Show the masonry polaroid photo wall with dropped paw prints and lightbox viewer.
+5. **Interactive Polish & UX**:
+   - Demonstrate working navigation, real-time breed/origin/search filters on `/puppies`, video modal, the "Dear TeddyPups" inline letterform with validation, and the floating action dock.
 6. **Production Readiness**:
    - Show the passing `npm run build` output and explain the inclusion of `vercel.json` with SPA URL rewrites for seamless deployment.

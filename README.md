@@ -8,7 +8,7 @@ A pixel-accurate, fully responsive, frontend-first clone of the reference boutiq
 
 TeddyPups U.A.E. is a luxury Dubai-based teacup and miniature puppy boutique specializing in ethically raised companion dogs (Maltipoos, Pomeranians, Poodles, Cavapoos, and Shih Tzus), offering showroom visits in Downtown Dubai as well as worldwide climate-controlled cargo and bespoke concierge imports from elite breeders in South Korea and Europe.
 
-This application recreates the complete visual design, warm whimsical editorial branding, responsive layouts, interactive elements, and multi-page routing of the reference website.
+This application recreates the complete visual design, warm whimsical editorial branding, responsive layouts, interactive elements, native animations, and multi-page routing of the reference website.
 
 ---
 
@@ -16,16 +16,40 @@ This application recreates the complete visual design, warm whimsical editorial 
 
 - **React.js (v18.3.1)**: Modern component-driven UI library.
 - **Vite (v5.4.2)**: Blazing fast build tool and development server.
-- **JavaScript (JSX)**: Clean, modular, standards-compliant ES6+ JavaScript.
+- **JavaScript (JSX)**: Clean, modular, standards-compliant ES6+ JavaScript (no TypeScript).
 - **React Router (v6.26.2)**: Multi-page client-side routing with instant scroll restoration.
-- **HTML5 & CSS3**: Custom design system, CSS variables, and bespoke illustrations.
+- **HTML5 & CSS3**: Complete extracted design system tokens, 46 native keyframe animations, and custom SVG illustrations.
 - **Lucide React**: Modern, scalable icon set.
 - **Google Fonts**:
-  - `Fraunces`: Editorial serif display font for plush headings.
-  - `Figtree`: Clean modern geometric sans-serif for body typography.
-  - `Shantell Sans`: Handwritten cursive accent font for playful notes and stamps.
+  - `Fraunces`: Editorial serif display font for plush headings (`.font-plush`).
+  - `Figtree`: Clean modern geometric sans-serif for body typography (`.font-sans`).
+  - `Shantell Sans`: Handwritten cursive accent font for playful notes and stamps (`.font-scrawl`).
 - **Git & GitHub**: Version control.
 - **Vercel**: Production deployment with single-page routing rewrites (`vercel.json`).
+
+---
+
+## 🎨 Complete Animation & Motion System
+
+1. **Page Curtain & Trotting Mascot (`Curtain.jsx` & `RunningPuppy.jsx`)**:
+   - Signature scalloped blanket curtain (`tp-curtain`) with smooth opening lift (`tp-curtain-lift`) and route transition wipes.
+   - Fully articulated running puppy SVG with animated running paws (`tp-runner-leg-a`, `tp-runner-leg-b`), bobbing head (`tp-runner-bob`), wagging tail (`tp-runner-wag`), and twitching ears.
+   - Paws pat across the screen with progressive animation delays leaving paw prints.
+2. **Scroll-Activated Reveal System (`useScrollReveal.js`)**:
+   - Global IntersectionObserver hook monitoring elements with `[data-reveal]`, `.tp-sketch`, `.tp-note`, `.tp-tag`, `.tp-ticket`, and `.tp-wall__item`.
+   - Arms elements with `data-armed="true"` on mount and automatically activates `data-revealed="true"` when scrolled into view, triggering authentic CSS keyframe transitions without layout shift.
+3. **3D Showroom Doors (`Home.jsx`)**:
+   - 3D perspective (`perspective: 700px`) doors with brass knobs and peep holes that swing open (`rotateY(var(--door-open))`) upon hover, revealing the puppy in their private room.
+4. **Scrapbook Sketches with Retraced Ink (`PuppyCard.jsx`)**:
+   - Authentic `.tp-sketch` cards with circular masks, watercolor wash backdrops, hand-drawn ink paths with retrace overlays, status stickers, and hopping doodles (`tp-doodle-hop`).
+5. **Masonry Polaroid Memory Wall (`HappyFamilies.jsx`)**:
+   - Real CSS multi-column masonry wall (`.tp-wall`) with polaroid prints, pastel washi tapes, and animated paw prints dropping down on scroll (`tp-print-bound`, `tp-paw-pat`). Includes an interactive lightbox modal.
+6. **Luggage Tag & Mascot Perch (`PuppyDetail.jsx`)**:
+   - Official health certification rendered as a swinging brass luggage tag (`.tp-tag`, `tp-tag-swing`) with the mascot puppy (`PupBuddy.jsx`) perched on top.
+7. **Admit-One Boarding Passes (`GoneHome.jsx`)**:
+   - Perforated tickets home with circular notches, departure destinations, and slide-in clip-path reveals (`tp-ticket`).
+8. **Interactive Sticky Board Notes (`FAQ.jsx`)**:
+   - Notice board with colored pushpins, organic angular tilts, live search filtering, and animated expand/collapse accordion flaps.
 
 ---
 
@@ -44,15 +68,15 @@ This application recreates the complete visual design, warm whimsical editorial 
   - "Visit Showroom" shortcut
   - "WhatsApp us" quick trigger
 
-### 3. Homepage (`/`)
-- **Hero Section (`tp-hero`)**: Sunrise radial ambient gradient, "every puppy is family" kicker badge, plush typography, dual CTAs, and featured puppies showcase.
-- **Meet the Pups (`tp-meet`)**: Real-time breed filter tabs (All, Maltipoo, Pomeranian, Poodle, Cavapoo, Shih Tzu) with interactive cards.
-- **Two Ways Home (`tp-paths`)**: Side-by-side comparison cards for Downtown Dubai Showroom visits vs. Exclusive Korean Imports.
-- **Your Puppy Journey (`tp-chat`)**: 3-step concierge process with an interactive simulated WhatsApp live chat preview.
+### 3. Homepage (`/`) — 8 Narrative Scenes
+- **Hero Quilt (`tp-hero`)**: Sunrise radial ambient gradient, "every puppy is family" badge, plush typography, dual CTAs, and 7 peeking puppies lineup in cozy bed quilt.
+- **Meet the Pups (`tp-meet`)**: Showroom doors with 3D perspective open effects.
+- **Two Ways Home (`tp-paths`)**: Side-by-side comparison for Downtown Dubai Showroom vs. Exclusive Korean Imports with airplane bobbing animation.
+- **Your Puppy Journey (`tp-chat`)**: 3-step concierge process with interactive simulated WhatsApp live chat preview.
 - **Why Families Trust TeddyPups (`tp-passport`)**: 4 trust pillars highlighting certified health records, ethical breeding, 24/7 care, and international cargo.
 - **Happy Families Gallery (`tp-dusk`)**: Client polaroids with heartwarming adopted puppy photos and testimonials.
-- **Questions, Answered (`tp-night`)**: Interactive FAQ accordion with expand/collapse states.
-- **Ready to Meet Your Best Friend? (`tp-home`)**: Final call-to-action banner.
+- **Questions, Answered (`tp-night`)**: Twinkling golden night stars and FAQ accordion.
+- **Ready to Meet Your Best Friend? (`tp-home`)**: Cozy house doorway scene and final CTA.
 
 ### 4. Available Puppies Page (`/puppies`)
 - Comprehensive listing of 15 available teacup puppies.
@@ -68,7 +92,7 @@ This application recreates the complete visual design, warm whimsical editorial 
 - Multi-image gallery with thumbnail selection and video trigger.
 - Detailed specifications table: Breed, Gender, Age, Status, Color, Adult Weight, Origin, and Price.
 - Chapter 1 narrative note: Biographical story and personality traits.
-- Official TeddyPups Passport checklist (Vaccines, Health Certificate, Deworming, Pedigree).
+- Official TeddyPups Passport checklist (Vaccines, Health Certificate, Deworming, Pedigree) inside swinging brass luggage tag with PupBuddy mascot.
 - Interactive "Enquire about [Name]" letterform with automated feedback toast.
 - Direct WhatsApp inquiry button with prefilled message.
 
@@ -78,13 +102,13 @@ This application recreates the complete visual design, warm whimsical editorial 
 - Premium puppy promise & health guarantees.
 
 ### 7. Happy Families Wall (`/happy-families`)
-- Photo memory wall featuring real client adoption stories, heartwarming moments, and family names.
+- Photo memory wall featuring real client adoption stories, heartwarming moments, and family names with lightbox photo preview.
 
 ### 8. Gone Home Boarding Passes (`/gone-home`)
 - Vintage travel boarding pass cards with perforated dashed dividers, "admit one" ticket stubs, and departure details for 25+ adopted puppies.
 
 ### 9. FAQ Page (`/faq`)
-- Complete searchable accordion containing all 9 official adoption and care questions.
+- Searchable sticky notes board with push pins and PupBuddy mascot.
 
 ### 10. Visit & Contact Page (`/contact`)
 - Bespoke postcard / letterform ("Dear TeddyPups...") with live inline inputs.
@@ -99,124 +123,105 @@ This application recreates the complete visual design, warm whimsical editorial 
 Blutec Ai/
 ├── public/
 │   ├── brand/
-│   │   └── logo.png              # Official TeddyPups logo
+│   │   └── logo.png              # High-res boutique puppy brand logo
 │   ├── cursor/
 │   │   ├── paw.svg               # Custom paw cursor
-│   │   └── paw-press.svg         # Click state cursor
-│   └── puppies/                  # 120+ downloaded high-res assets
+│   │   └── paw-press.svg         # Active press paw cursor
+│   └── puppies/                  # 129 local high-res images (0 broken links)
 ├── src/
-│   ├── assets/
+│   ├── assets/                   # Static icons & vectors
 │   ├── components/
-│   │   ├── FloatingBar.jsx       # Pinned bottom quick actions
-│   │   ├── Footer.jsx            # Multi-column footer & copyright
-│   │   ├── Header.jsx            # Sticky navigation & mobile drawer
-│   │   ├── PuppyCard.jsx         # Watercolor wash sketch puppy card
-│   │   ├── ScrollToTop.jsx       # Route change scroll reset
-│   │   ├── Toast.jsx             # Notification toast component
-│   │   └── VideoModal.jsx        # Video preview modal dialog
+│   │   ├── Curtain.jsx           # Animated opening curtain & route transition
+│   │   ├── FloatingBar.jsx       # Pinned bottom quick action dock
+│   │   ├── Footer.jsx            # Scalloped footer with social links & hours
+│   │   ├── Header.jsx            # Sticky navigation bar with mobile drawer
+│   │   ├── PupBuddy.jsx          # Interactive articulated puppy mascot SVG
+│   │   ├── PuppyCard.jsx         # Authentic sketchbook sketch card with ink lines
+│   │   ├── RunningPuppy.jsx      # Articulated animated running puppy SVG
+│   │   ├── ScrollToTop.jsx       # Instant route scroll restoration
+│   │   ├── Toast.jsx             # Feedback notification popup
+│   │   └── VideoModal.jsx        # Simulated puppy video preview dialog
 │   ├── data/
-│   │   ├── puppiesData.js        # Available puppies dataset
-│   │   └── siteData.js           # FAQs, testimonials, tickets, config
+│   │   ├── puppiesData.js        # 15 puppies with specs, stories, and verified image paths
+│   │   └── siteData.js           # FAQ data, reviews, boarding passes, showroom info
+│   ├── hooks/
+│   │   └── useScrollReveal.js    # IntersectionObserver scroll reveal hook
 │   ├── pages/
-│   │   ├── Contact.jsx           # Postcard contact letterform & showroom
-│   │   ├── FAQ.jsx               # Searchable FAQ accordion
-│   │   ├── GoneHome.jsx          # Boarding pass ticket archive
-│   │   ├── HappyFamilies.jsx     # Client photo gallery
-│   │   ├── Home.jsx              # Complete 8-section homepage
-│   │   ├── HowItWorks.jsx        # Concierge process & delivery guide
-│   │   ├── Puppies.jsx           # Puppies directory with filters & search
-│   │   └── PuppyDetail.jsx       # Storybook detail page
+│   │   ├── Contact.jsx           # Inline prose letterform with validation
+│   │   ├── FAQ.jsx               # Notice board with pushpin sticky notes
+│   │   ├── GoneHome.jsx          # Boarding pass tickets collection
+│   │   ├── HappyFamilies.jsx     # Masonry polaroid photo wall with lightbox
+│   │   ├── Home.jsx              # 8 narrative scenes matching original site
+│   │   ├── HowItWorks.jsx        # Adoption walkthrough and guarantees
+│   │   ├── Puppies.jsx           # Filterable catalog with staggered layout
+│   │   └── PuppyDetail.jsx       # Storybook profile with swinging brass tag
 │   ├── styles/
-│   │   ├── global.css            # Base typography & design variables
-│   │   ├── original.css          # Core visual system & animations
-│   │   └── responsive.css        # Breakpoints & mobile refinements
-│   ├── App.jsx                   # Root router configuration
-│   └── main.jsx                  # React DOM entry point
-├── .gitignore
-├── DEVELOPMENT_LOG.md            # Detailed engineering & decision log
-├── index.html                    # HTML5 entry with Google Fonts
-├── package.json                  # Dependencies & scripts
-├── README.md                     # Documentation
-├── vercel.json                   # Vercel SPA rewrite configuration
-└── vite.config.js                # Vite build configuration
+│   │   ├── fonts.css             # Local font declarations (Fraunces, Figtree, Shantell)
+│   │   ├── original.css          # Design tokens & 46 keyframe animations
+│   │   └── global.css            # Base styles and Tailwind utility mappings
+│   ├── App.jsx                   # Root router, curtain, and scroll reveal provider
+│   └── main.jsx                  # Application entry point
+├── scripts/                      # Automated asset scrapers and verification tools
+├── index.html                    # HTML5 shell with metadata and favicon
+├── package.json                  # Dependencies and build scripts
+├── vercel.json                   # SPA routing rewrites for Vercel
+├── vite.config.js                # Vite build and dev server config
+├── DEVELOPMENT_LOG.md            # Comprehensive AI engineering log
+└── README.md                     # Project documentation
 ```
 
 ---
 
-## 🚀 Installation & Local Development
+## 🚀 Running the Project Locally
 
 ### Prerequisites
-- Node.js (v18.0.0 or higher recommended; developed on Node v22.17.1)
-- npm or yarn
+- Node.js (v18.0.0 or higher recommended)
+- npm (v9.0.0 or higher)
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/<your-username>/blutec-ai-teddypups-clone.git
-cd blutec-ai-teddypups-clone
-```
+### Installation & Startup
 
-### 2. Install dependencies
-```bash
-npm install
-```
+1. **Clone or enter the project directory**:
+   ```bash
+   cd "Blutec Ai"
+   ```
 
-### 3. Start development server
-```bash
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-### 4. Build for production
-```bash
-npm run build
-```
+3. **Start development server**:
+   ```bash
+   npm run dev
+   ```
+   Open your browser at `http://localhost:3000/`.
 
-### 5. Preview production build locally
-```bash
-npm run preview
-```
+4. **Build for production**:
+   ```bash
+   npm run build
+   ```
+
+5. **Preview production build locally**:
+   ```bash
+   npm run preview
+   ```
 
 ---
 
-## 🌐 Deployment to Vercel
+## 🚢 Deploying to Vercel
 
-This project is fully prepared for zero-configuration Vercel deployment.
+The application is pre-configured with `vercel.json` for seamless zero-config Vercel deployment:
 
-### Method 1: Using the Vercel CLI
 ```bash
+# Install Vercel CLI globally (if not already installed)
 npm install -g vercel
+
+# Deploy directly to Vercel
 vercel
 ```
 
-### Method 2: Via GitHub Integration
-1. Push this repository to GitHub:
-   ```bash
-   git add .
-   git commit -m "feat: complete TeddyPups website clone"
-   git branch -M main
-   git remote add origin https://github.com/<your-username>/<your-repo-name>.git
-   git push -u origin main
-   ```
-2. Navigate to [Vercel Dashboard](https://vercel.com/dashboard).
-3. Click **"Add New"** > **"Project"**.
-4. Import your GitHub repository.
-5. Framework preset will automatically detect **Vite**.
-6. Click **"Deploy"**.
-
-The included `vercel.json` ensures that all React Router dynamic routes (`/puppies/:slug`, `/how-it-works`, `/contact`, etc.) work seamlessly without 404 errors on direct reloads.
-
----
-
-## 📋 Quality Assurance & Verification
-
-- ✅ **Build Status**: Verified with `npm run build` (Exit code 0, 0 errors).
-- ✅ **Assets**: 100% of logos, icons, and puppy photography are stored locally in `public/`, eliminating third-party CDN failure risks.
-- ✅ **Typography**: Exact editorial pairing of `Fraunces`, `Figtree`, and `Shantell Sans`.
-- ✅ **Responsiveness**: Tested across mobile (375px+), tablet (768px+), laptop (1024px+), and desktop (1440px+).
-- ✅ **Interactivity**: Working mobile menu, filter pills, search input, video modal, accordion toggle, and letterform submission feedback.
-
----
-
-## 📄 Documentation
-
-For an in-depth breakdown of architectural choices, challenges encountered, solutions implemented, and technical explanations for the interview, please refer to [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md).
+Or connect the repository via the [Vercel Dashboard](https://vercel.com/):
+- **Framework Preset**: `Vite`
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Install Command**: `npm install`
