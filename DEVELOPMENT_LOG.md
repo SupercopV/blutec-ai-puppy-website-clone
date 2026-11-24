@@ -327,3 +327,86 @@ When recording your Loom video walkthrough for the hiring team, highlight the fo
 - **Build Verification**:
   - Vite production build cleanly passed in 2.28s.
   - Git committed under commit `2c03852`.
+
+
+## Phase 10: 100% Recreation of the "Puppies" Page & Typography (`https://puppy.instabizweb.com/puppies`)
+
+- **Typography & Exact Font Assets**:
+  - Downloaded all **10 exact variable `.woff2` font files** directly from the live reference bundle:
+    - `Fraunces` variable with custom axes `SOFT` 100, `WONK` 0, `opsz` 36.
+    - `Figtree` variable weights 300 to 900.
+    - `Shantell Sans` handwritten variable weights 300 to 800.
+  - Linked locally in `public/fonts/` and imported through `src/styles/fonts.css` with fallbacks (`Times New Roman`, `Arial`).
+  - Active throughout CSS via `--font-display`, `--font-sans`, `--font-hand`, `.font-plush`, and `.font-scrawl`.
+- **Sketchbook Page Layout (`.tp-sketchbook`)**:
+  - Exact radial dotted grid background (`#2a170e17` 1px at 26px interval) over warm cream gradient.
+  - Headline `Available puppies` with organic hand-drawn wavy underline SVG (`.tp-sketchbook__underline`).
+  - Lede description and circular self-portrait mascot frame (`.tp-sketchbook__self`) with double-sketched border and handwritten `self-portrait` caption.
+- **3-Row Filter Notepad (`.tp-sketchpad`)**:
+  - Soft cream paper pad with angled washi tape at top-left.
+  - Row 1: `where` (`Everywhere`, `Imported`, `Korean Teacup`).
+  - Row 2: `breed` (`Maltipoo`, `Pomeranian`, `Poodle`, `Cavapoo`, `Shih Tzu`).
+  - Row 3: `boy or girl` (`Boys`, `Girls`).
+  - Smooth sticker chip toggle interactions (`.tp-sticker-chip`) with dark cocoa active states (`aria-pressed`).
+- **Puppy Sketch Cards & Masonry Grid (`.tp-sketches`)**:
+  - Staggered column grid with even cards offset down by `2.4rem`.
+  - Watercolor wash backgrounds (`.tp-sketch__wash`), circular mask photos (`clip-path`), hand-drawn ink loops (`.tp-sketch__line`), and hopping doodles (`.tp-sketch__doodle`).
+  - Status sticker badges, play video buttons, and direct detail routing.
+- **"Already Gone Home" Strip (`.tp-gone-strip`)**:
+  - Honey-soft dotted background section at the bottom.
+  - Left column: `Already gone home` heading, description, and link button to `/gone-home`.
+  - Right column: Grid row of small sketch cards (`.tp-sketch--small`) showcasing 5 adopted puppies (Ace, Leo, Mia, Sadie, Pomeranian) with `gone home` badges and sepia/saturate filters.
+- **Build Verification**:
+  - Production build clean (`npm run build` in 5.68s, 0 errors).
+  - Git committed under commit `ea08bc6`.
+
+
+## Phase 11: 100% Recreation of the "Gone Home" Boarding Ticket Booth Page (`https://puppy.instabizweb.com/gone-home`)
+
+- **DOM Analysis & Extraction**:
+  - Extracted 100,920 bytes of reference `<main>` markup from `https://puppy.instabizweb.com/gone-home` into `scripts/extracted_gone_home.html`.
+  - Identified all 27 adopted puppy boarding pass tickets with exact metadata, tilts, and image URLs into `src/data/goneHomeTicketsData.json`.
+  - Downloaded all **27 authentic high-resolution puppy photos** locally to `public/media/` with zero missing assets.
+  - Extracted and integrated the 28 exact CSS rules for `.tp-boothhead`, `.tp-booth`, `.tp-booth__counter`, `.tp-tickets`, `.tp-ticket`, `.tp-ticket__main`, `.tp-ticket__stub`, and radial tear cutouts.
+- **Ticket Booth Header (`.tp-boothhead`)**:
+  - Headline `Gone home` in Fraunces (`.font-plush`) with authentic heart SVG vector.
+  - Lede description: *"Every puppy here has already joined a loving family. Looking for one just like them? Tell us — we'll help you find your match."*
+  - Action link: `<Link class="btn btn-primary mt-8" to="/puppies">See available puppies</Link>`.
+  - **Ticket Booth (`.tp-booth`)**:
+    - Animated mascot Teddy `<PupBuddy facing="right" pose="peek" className="tp-booth__teddy" />` peering over the booth with paws resting on the counter ledge.
+    - Counter bar (`.tp-booth__counter`) with authentic toffee-and-milk striped awning pattern and `"tickets home"` lettering in Fraunces.
+- **Authentic Boarding Tickets Grid (`.tp-tickets`)**:
+  - Responsive CSS grid (`repeat(auto-fill, minmax(min(100%, 21rem), 1fr))`) rendering all 27 puppies:
+    1. Ace (Pomeranian, boy — TeddyPups ✈️ home ♥)
+    2. Leo (Poodle, boy — TeddyPups ✈️ home ♥)
+    3. Mia (Maltipoo, girl — Dubai showroom ✈️ home ♥)
+    4. Sadie (Maltipoo, girl — TeddyPups ✈️ home ♥)
+    5. Pomeranian (Boy — TeddyPups ✈️ home ♥)
+    6. Ollie (Pomsky, boy — TeddyPups ✈️ home ♥)
+    7. Bruno (Maltipoo, boy — Dubai showroom ✈️ home ♥)
+    8. Buddy (Maltese, boy — Dubai showroom ✈️ home ♥)
+    9. Charlie (Maltese, boy — TeddyPups ✈️ home ♥)
+    10. Daisy (Pomeranian, girl — Dubai showroom ✈️ home ♥)
+    11. Bella (Pomeranian, girl — TeddyPups ✈️ home ♥)
+    12. Teddy (Poodle, boy — TeddyPups ✈️ home ♥)
+    13. Molly (Cavapoo, girl — Dubai showroom ✈️ home ♥)
+    14. Coco (Poodle, boy — TeddyPups ✈️ home ♥)
+    15. Rosie (Maltipoo, girl — TeddyPups ✈️ home ♥)
+    16. Leo (Pomeranian, boy — Dubai showroom ✈️ home ♥)
+    17. Molly (Pomeranian, girl — TeddyPups ✈️ home ♥)
+    18. Rocky (Maltipoo, boy — TeddyPups ✈️ home ♥)
+    19. Sophie (Maltipoo, girl — Dubai showroom ✈️ home ♥)
+    20. Lola (Poodle, girl — TeddyPups ✈️ home ♥)
+    21. Rex (Cavapoo, boy — TeddyPups ✈️ home ♥)
+    22. Finn (Poodle, boy — TeddyPups ✈️ home ♥)
+    23. Zoe (Maltipoo, girl — Dubai showroom ✈️ home ♥)
+    24. Mimi (Pomeranian, girl — Dubai showroom ✈️ home ♥)
+    25. Bailey (Bichon, boy — Dubai showroom ✈️ home ♥)
+    26. Maltipoo (Girl — TeddyPups ✈️ home ♥)
+    27. Poodle (Girl — Dubai showroom ✈️ home ♥)
+  - Individual tilt angle (`--tilt: -1.4deg`, `1.1deg`, etc.) with smooth leveling transition to `0deg` on hover.
+  - Authentic radial mask cutouts (`mask: radial-gradient(...)`) on main body and stub edges producing circular notch tear perforations.
+  - Circular photo frame (`.tp-ticket__photo`) with smooth fade-in loading state (`transition: opacity 0.4s ease`, `opacity: loaded ? 1 : 0`), exact background color placeholders (`bgColor`), and custom `objectPosition` focal alignment.
+  - Perforated golden tear stub (`.tp-ticket__stub`) with vertical `"admit one"` text rotated 180° (`writing-mode: vertical-rl; rotate: 180deg`) that animates and tears open by `7deg` on ticket hover (`rotate: 7deg`).
+- **Build Verification**:
+  - Vite production build cleanly completed in 2.50s with zero errors (`dist/index.html`, `dist/assets/`).
