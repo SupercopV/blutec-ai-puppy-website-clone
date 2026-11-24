@@ -1,11 +1,45 @@
 import React from 'react';
 
 /**
- * PupBuddy - Interactive mascot puppy SVG with blinking eyes, wagging tail, haunches, and collar.
- * Used for sketchbook self-portrait, FAQ sniff-a-question, and page headers.
+ * PupBuddy - Exact SVG mascot puppy from TeddyPups UAE.
+ * Supports poses: 'sit' (default), 'snug' (in basket), 'peek' (behind quilt/fence), 'bow' (welcome mat).
+ * Supports facing: 'left' or 'right'.
  */
-export default function PupBuddy({ facing = 'left', className = '' }) {
+export default function PupBuddy({ facing = 'left', pose = 'sit', className = '' }) {
   const isLeft = facing === 'left';
+  const isSnug = pose === 'snug';
+  const isPeek = pose === 'peek';
+  const isBow = pose === 'bow';
+
+  // Determine transforms and opacities by pose
+  let headTransform = "translate(-10 -6) rotate(0 212 100)";
+  let bodyTransform = "translate(0 -2) rotate(-24 196 206) translate(196 0) scale(1 1) translate(-196 0)";
+  let bodyOpacity = 1;
+  let haunchTransform = "translate(0 1.44)";
+  let haunchOpacity = 1;
+  let ledgeOpacity = 0;
+  let shadowOpacity = 0.12;
+
+  if (isSnug) {
+    headTransform = "translate(0 9) rotate(4 212 100)";
+    bodyOpacity = 0;
+    haunchOpacity = 0;
+    ledgeOpacity = 1;
+    shadowOpacity = 0;
+  } else if (isPeek) {
+    headTransform = "translate(0 4) rotate(0 212 100)";
+    bodyOpacity = 0;
+    haunchOpacity = 0;
+    ledgeOpacity = 1;
+    shadowOpacity = 0;
+  } else if (isBow) {
+    headTransform = "translate(14 30) rotate(0 212 100)";
+    bodyTransform = "translate(0 2) rotate(15 196 206) translate(196 0) scale(1 1) translate(-196 0)";
+    haunchTransform = "translate(0 -0.9)";
+    haunchOpacity = 0;
+    ledgeOpacity = 0;
+    shadowOpacity = 0.12;
+  }
 
   return (
     <div className={`pup-buddy ${className}`} data-facing={facing}>
@@ -24,11 +58,11 @@ export default function PupBuddy({ facing = 'left', className = '' }) {
             rx="92" 
             ry="7" 
             fill="#2a170e" 
-            opacity="0.12" 
+            opacity={shadowOpacity} 
             transform="translate(0 0) scale(1 1)" 
             style={{ transformBox: 'fill-box', transformOrigin: 'center' }} 
           />
-          <g data-p="body" transform="translate(0 -2) rotate(-24 196 206) translate(196 0) scale(1 1) translate(-196 0)" opacity="1">
+          <g data-p="body" transform={bodyTransform} opacity={bodyOpacity}>
             <g data-p="bf" transform="translate(94 192) rotate(0)" opacity="0">
               <path d="M-14 -14 C-14 4 -12 18 -12 27 C-12 34 -7 36 0 36 C9 36 13 33 13 27 C13 18 14 4 14 -14Z" fill="#e4a352" />
               <path d="M-14 -14 C-14 4 -12 18 -12 27 C-12 34 -7 36 0 36 C9 36 13 33 13 27 C13 18 14 4 14 -14" stroke="#2a170e" strokeWidth="3.4" strokeLinejoin="round" strokeLinecap="round" fill="none" />
@@ -57,12 +91,12 @@ export default function PupBuddy({ facing = 'left', className = '' }) {
               <path d="M-3.5 27 v5 M4.5 27 v5" stroke="#2a170e" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" fill="none" />
             </g>
           </g>
-          <g data-p="haunch" opacity="1" transform="translate(0 1.44)">
+          <g data-p="haunch" opacity={haunchOpacity} transform={haunchTransform}>
             <path d="M80.0 204.0Q75.1 194.9 85.7 189.9Q88.4 180.2 100.7 181.2Q110.0 174.6 119.3 181.2Q131.6 180.2 134.3 189.9Q144.9 194.9 140.0 204.0Q144.9 213.1 134.3 218.1Q131.6 227.8 119.3 226.8Q110.0 233.4 100.7 226.8Q88.4 227.8 85.7 218.1Q75.1 213.1 80.0 204.0Z" fill="#f2be6b" stroke="#2a170e" strokeWidth="3.4" strokeLinejoin="round" strokeLinecap="round" />
             <path d="M112 214 C126 212 142 214 146 221 C148 226 144 229 136 229 L116 229 C108 229 104 224 106 219 Z" fill="#f2be6b" stroke="#2a170e" strokeWidth="3.4" strokeLinejoin="round" strokeLinecap="round" />
             <path d="M132 222v5M139 222v5" stroke="#2a170e" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" fill="none" />
           </g>
-          <g data-p="head" transform="translate(-10 -6) rotate(0 212 100)">
+          <g data-p="head" transform={headTransform}>
             <path d="M178 146 Q212 162 246 146 L246 154 Q212 170 178 154 Z" fill="#a24a1a" stroke="#2a170e" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
             <path d="M212 160 C212 156 206 155 206 159.4 C206 163 212 166.6 212 168.4 C212 166.6 218 163 218 159.4 C218 155 212 156 212 160 Z" fill="#fbe3b4" stroke="#2a170e" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
             <path data-p="earL" d="M177.1 78.7Q186.9 70.8 186.6 87.4Q196.0 89.9 189.9 105.5Q195.2 117.3 185.5 126.0Q184.7 142.8 175.2 141.2Q168.7 156.5 162.9 145.3Q153.1 153.2 153.4 136.6Q144.0 134.1 150.1 118.5Q144.8 106.7 154.5 98.0Q155.3 81.2 164.8 82.8Q171.3 67.5 177.1 78.7Z" fill="#e4a352" stroke="#2a170e" strokeWidth="3.4" strokeLinejoin="round" strokeLinecap="round" transform="rotate(0 174 82)" />
@@ -94,7 +128,7 @@ export default function PupBuddy({ facing = 'left', className = '' }) {
               <path d="M206.5 133.5 Q212 130 217.5 133.5 Q215 138 212 138 Q209 138 206.5 133.5 Z" fill="#e98c8c" />
             </g>
           </g>
-          <g data-p="ledge" opacity="0">
+          <g data-p="ledge" opacity={ledgeOpacity}>
             <path d="M175 159 C175 148 181 142 190 142 C199 142 205 148 205 159 Z M219 159 C219 148 225 142 234 142 C243 142 249 148 249 159 Z" fill="#f2be6b" stroke="#2a170e" strokeWidth="3.4" strokeLinejoin="round" strokeLinecap="round" />
             <path d="M186 153 v-4.5 M194 153 v-4.5 M230 153 v-4.5 M238 153 v-4.5" stroke="#2a170e" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" fill="none" />
           </g>

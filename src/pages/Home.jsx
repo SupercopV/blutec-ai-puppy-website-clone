@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, ChevronDown, CheckCircle2 } from 'lucide-react';
 import VideoModal from '../components/VideoModal';
+import PupBuddy from '../components/PupBuddy';
 import { PUPPIES_DATA } from '../data/puppiesData';
 import { SITE_CONFIG, FAQ_DATA } from '../data/siteData';
 
@@ -48,15 +49,11 @@ export default function Home() {
         <div className="tp-hero__copy gutter">
           <p className="tp-hero__note font-scrawl">
             every puppy is family
-            <svg aria-hidden="true" className="absolute -bottom-2 left-0 h-3 w-full text-toffee" preserveAspectRatio="none" viewBox="0 0 220 24">
-              <path d="M4 14c18-10 30 8 48-1s28-9 46 0 30 8 48-1 30-9 48 0 18 2 22 0" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
-            </svg>
           </p>
           <h1 className="tp-hero__title font-plush" id="hero-title">
-            <span className="tp-hero__line">Premium teacup</span>{' '}
-            <span className="tp-hero__line tp-hero__line--2">puppies in Dubai</span>
+            The sweetest puppies in Dubai, waiting to meet you
           </h1>
-          <p className="tp-hero__lede">
+          <p className="tp-hero__lede text-lede">
             Meet your new best friend in our Dubai showroom, or order a rare miniature breed from trusted breeders worldwide.
           </p>
           <div className="tp-hero__actions">
@@ -113,6 +110,19 @@ export default function Home() {
             <svg className="tp-quilt__edge" viewBox="0 0 1440 40" preserveAspectRatio="none">
               <path d="M0 20 Q 36 0 72 20 T 144 20 T 216 20 T 288 20 T 360 20 T 432 20 T 504 20 T 576 20 T 648 20 T 720 20 T 792 20 T 864 20 T 936 20 T 1008 20 T 1080 20 T 1152 20 T 1224 20 T 1296 20 T 1368 20 T 1440 20 L 1440 40 L 0 40 Z" fill="var(--sky-bottom)" />
             </svg>
+          </div>
+
+          {/* Teddy Mascot peeking behind the hero quilt */}
+          <div 
+            data-pup-stop="true" 
+            data-pose="peek" 
+            data-facing="right" 
+            data-act="peekaboo" 
+            data-behind="true" 
+            data-lane="true" 
+            className="pup-stop tp-hero__teddy"
+          >
+            <PupBuddy facing="right" pose="peek" />
           </div>
         </div>
       </section>
@@ -188,6 +198,12 @@ export default function Home() {
                 </Link>
               </li>
             </ol>
+            
+            {/* Showroom Floor & Teddy sitting on floor */}
+            <div aria-hidden="true" className="tp-meet__floor" />
+            <div data-pup-stop="true" data-pose="sit" data-facing="right" className="pup-stop tp-meet__teddy">
+              <PupBuddy facing="right" pose="sit" />
+            </div>
           </div>
         </div>
       </section>
@@ -267,6 +283,11 @@ export default function Home() {
                 </Link>
               </div>
             </article>
+
+            {/* Teddy Mascot sitting at fork junction */}
+            <div data-pup-stop="true" data-pose="sit" data-facing="right" className="pup-stop tp-fork__teddy">
+              <PupBuddy facing="right" pose="sit" />
+            </div>
           </div>
         </div>
       </section>
@@ -302,41 +323,50 @@ export default function Home() {
               <li className="tp-chat__step">
                 <span className="tp-chat__step-n font-plush">2</span>
                 <div>
-                  <h3 className="font-plush text-xl font-bold">Get photos & details</h3>
+                  <h3 className="font-plush text-xl font-bold">Meet virtually or in person</h3>
                   <p className="text-sm text-[var(--ink-soft)] mt-1">
-                    Our team will share real photos, health details, and all necessary information directly on WhatsApp.
+                    View high-definition videos, schedule a live video call, or visit our cozy Downtown Dubai showroom.
                   </p>
                 </div>
               </li>
               <li className="tp-chat__step">
                 <span className="tp-chat__step-n font-plush">3</span>
                 <div>
-                  <h3 className="font-plush text-xl font-bold">Secure & safe delivery</h3>
+                  <h3 className="font-plush text-xl font-bold">Safe delivery or pickup</h3>
                   <p className="text-sm text-[var(--ink-soft)] mt-1">
-                    Once confirmed, we handle everything professionally and ensure your puppy reaches you safely and stress-free.
+                    Pick up your puppy directly from our showroom or enjoy secure, air-conditioned delivery right to your door anywhere in the UAE or worldwide.
                   </p>
                 </div>
               </li>
             </ol>
-
-            <div className="mt-8">
-              <Link className="btn btn-primary" to="/how-it-works">
-                How it works
-              </Link>
-            </div>
           </div>
 
-          {/* Interactive Simulated WhatsApp Phone Screen */}
-          <div className="tp-chat__side">
-            <div className="max-w-md mx-auto bg-[#e5ddd5] rounded-3xl border-3 border-[#2a170e] shadow-[8px_12px_0px_#2a170e] overflow-hidden">
-              <div className="bg-[#075e54] text-white px-5 py-4 flex items-center gap-3">
-                <img src="/brand/logo.png" alt="TeddyPups" className="w-10 h-10 rounded-full bg-white p-1" />
+          {/* Interactive WhatsApp Chat Device Mockup */}
+          <div className="tp-chat__device">
+            <div className="bg-[#128c7e] text-white p-4 rounded-t-3xl flex items-center justify-between shadow-md">
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/brand/logo.png" 
+                  alt="TeddyPups" 
+                  className="w-10 h-10 rounded-full bg-white p-0.5 object-cover" 
+                />
                 <div>
-                  <p className="font-bold text-sm">TeddyPups Concierge</p>
-                  <p className="text-[11px] text-[#25d366] font-medium">● Online | Downtown Dubai</p>
+                  <p className="font-plush font-bold text-sm">TeddyPups UAE</p>
+                  <p className="text-xs text-white/80">Online Concierge</p>
                 </div>
               </div>
+              <a
+                href={SITE_CONFIG.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                aria-label="Chat on WhatsApp"
+              >
+                <MessageCircle className="w-5 h-5 fill-current" />
+              </a>
+            </div>
 
+            <div className="bg-[#efeae2] border-x-2 border-b-2 border-[#2a170e]/20 rounded-b-3xl shadow-xl overflow-hidden">
               <div className="p-4 space-y-3 font-sans text-xs sm:text-sm">
                 <div className="bg-white text-[#2a170e] p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%]">
                   Hello! Welcome to TeddyPups UAE 🐾 Are you looking for a puppy in our Dubai showroom, or an imported teacup breed?
@@ -366,6 +396,11 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          {/* Mascot Teddy sitting by the chat */}
+          <div data-pup-stop="true" data-pose="sit" data-facing="right" className="pup-stop tp-chat__teddy">
+            <PupBuddy facing="right" pose="sit" />
+          </div>
         </div>
       </section>
 
@@ -388,6 +423,10 @@ export default function Home() {
               <h2 className="font-plush tp-book__title" id="trust-title">
                 Why families trust TeddyPups
               </h2>
+              {/* Mascot Teddy sitting by booklet title */}
+              <div data-pup-stop="true" data-pose="sit" data-facing="right" className="pup-stop tp-book__teddy">
+                <PupBuddy facing="right" pose="sit" />
+              </div>
               <div className="mt-8">
                 <p className="text-sm sm:text-base text-[#5a3a28] leading-relaxed">
                   Every adoption comes with complete transparency, verified veterinary clearance, and lifetime care support.
@@ -451,32 +490,20 @@ export default function Home() {
         className="tp-scene tp-dusk" 
         data-pup-scene="true" 
         data-tone="dark" 
-        style={{ '--sky-top': '#a65a30', '--sky-bottom': '#4d2b19' }}
+        style={{ '--sky-top': '#8c421e', '--sky-bottom': '#4d2b19' }}
       >
-        <div className="tp-dusk__sky gutter">
-          <div className="tp-dusk__head">
-            <h2 className="font-plush text-huge" id="dusk-title">
-              Happy families & puppies
+        <div className="gutter mx-auto max-w-[110rem]">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="font-plush text-huge text-[#fffdf8]" id="dusk-title">
+              Happy families, happy puppies
             </h2>
-            <p className="text-lede mt-5 max-w-[50ch] text-[var(--ink-soft)]">
-              We are truly honored to see our puppies become cherished members of loving families. These heartwarming moments have been shared by our valued clients who welcomed a Teddy Pup into their homes and hearts.
+            <p className="text-lede mt-4 text-[#fbe3b4]">
+              Real memories from families who welcomed a TeddyPups puppy into their lives.
             </p>
           </div>
 
-          {/* Testimonial Quote Note from Sarah M. */}
-          <figure className="tp-dusk__note">
-            <blockquote className="font-plush-text text-sm sm:text-base leading-relaxed text-[#2a170e]">
-              “TeddyPups truly made our dream a reality. They supported us at every step of the import journey. Our Maltipoo arrived healthy, cheerful, and absolutely perfect. Having 24/7 support throughout the process gave us complete peace of mind.”
-            </blockquote>
-            <figcaption className="font-scrawl text-xs text-[#8e3f15] mt-2 font-bold">
-              Sarah M., Dubai, UAE
-            </figcaption>
-          </figure>
-        </div>
-
-        {/* Polaroid Memory Photo Wall */}
-        <div className="tp-photowall">
-          <div className="tp-photowall__wall gutter">
+          {/* Photowall Gallery */}
+          <div className="tp-photowall mt-12">
             <ul aria-label="Photos from TeddyPups families" className="tp-photowall__prints flex flex-wrap gap-6 justify-center">
               {duskPolaroids.map((item, idx) => (
                 <li key={item.id} data-reveal="true" style={{ '--d': `${idx * 110}ms` }}>
@@ -499,10 +526,14 @@ export default function Home() {
             </ul>
           </div>
 
-          <div className="text-center mt-10">
+          <div className="text-center mt-10 relative">
             <Link className="btn btn-ghost" to="/happy-families">
               See every happy family
             </Link>
+            {/* Mascot Teddy sitting by happy families CTA */}
+            <div data-pup-stop="true" data-pose="sit" data-facing="right" className="pup-stop tp-dusk__teddy">
+              <PupBuddy facing="right" pose="sit" />
+            </div>
           </div>
         </div>
       </section>
@@ -547,6 +578,14 @@ export default function Home() {
               <Link className="btn btn-ghost" to="/faq">
                 Read all questions
               </Link>
+            </div>
+            
+            {/* Mascot Teddy with ? wonder badge tilting head */}
+            <div className="tp-night__pup mt-10">
+              <span aria-hidden="true" className="tp-night__wonder font-plush">?</span>
+              <div data-pup-stop="true" data-pose="sit" data-facing="right" data-act="tilt" className="pup-stop tp-night__teddy">
+                <PupBuddy facing="right" pose="sit" />
+              </div>
             </div>
           </div>
 
@@ -595,7 +634,7 @@ export default function Home() {
           </p>
         </div>
 
-        {/* The Cozy House Doorway with Lamp & Max waiting inside */}
+        {/* The Cozy House Doorway with Lamp & Welcome Mat */}
         <div className="tp-house" aria-hidden="true">
           <span className="tp-house__plant tp-house__plant--left" />
           <span className="tp-house__lamp" />
@@ -609,7 +648,12 @@ export default function Home() {
             </span>
           </div>
           <span className="tp-house__plant tp-house__plant--right" />
-          <span className="tp-house__mat font-scrawl">welcome home</span>
+          <span aria-hidden="true" className="tp-house__mat font-scrawl">welcome home</span>
+          
+          {/* Mascot Teddy bowing on the welcome mat */}
+          <div data-pup-stop="true" data-pose="bow" data-facing="right" className="pup-stop tp-house__teddy">
+            <PupBuddy facing="right" pose="bow" />
+          </div>
         </div>
 
         {/* Home Bottom Actions */}
