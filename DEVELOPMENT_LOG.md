@@ -410,3 +410,35 @@ When recording your Loom video walkthrough for the hiring team, highlight the fo
   - Perforated golden tear stub (`.tp-ticket__stub`) with vertical `"admit one"` text rotated 180° (`writing-mode: vertical-rl; rotate: 180deg`) that animates and tears open by `7deg` on ticket hover (`rotate: 7deg`).
 - **Build Verification**:
   - Vite production build cleanly completed in 2.50s with zero errors (`dist/index.html`, `dist/assets/`).
+
+
+## Phase 12: 100% Recreation of the Landing Page & Continuous Dog Animation (`https://puppy.instabizweb.com/`)
+
+- **DOM & RSC Extraction**:
+  - Scanned and extracted 237,546 bytes of reference `<main>` markup from `scraped_pages/home.html` into `scripts/extracted_home_main.html`.
+  - Extracted 131,134 bytes of raw Next.js RSC component payload into `scripts/extracted_home_rsc.txt`.
+  - Downloaded all **19 authentic high-resolution puppy photos** locally into `public/media/` (zero missing assets).
+- **Extracted Home Data (`src/data/homeData.js`)**:
+  - `HERO_LINEUP`: 6 puppy seats + 6 ghost handwritten tags (`Max`, `Korean Teacup Maltipoo`, `Korean Teacup Poodle`, `Maltipoo & Cavapoo`, `Toy Poodle`, `Maltipoo`).
+  - `MEET_DOORS`: 16 doors (15 puppies with 3D swinging door leaves with peepholes and knobs, "Available" tags in Shantell Sans + "Meet them all" link).
+  - `DUSK_POLAROIDS`: 8 client memories with exact washi tape styles, tilts, and photos.
+  - `NIGHT_FAQS`: 3 authentic adoption Q&A cards with star bullet points.
+- **Continuous Scroll Dog Runner Animation (`src/components/PupRunner.jsx`)**:
+  - Fixed actor overlay layer (`.pup-layer`) tracking the 8 scene stops (`.pup-stop`).
+  - Dynamic smooth position interpolation (`translate3d(x, y, 0)`) driven by `requestAnimationFrame`.
+  - Spawns 24 authentic SVG paw print trails (`.pup-prints`) along the page.
+  - Interactive petting hover (`wag(1)`, happy eyes) and playful click responses (`woof!`, `❤️`, `🐾`, `sniff sniff!`).
+  - Speech bubble thought at cue stops (`peekaboo!`).
+- **Complete Rebuilt Scenes (`src/pages/Home.jsx`)**:
+  1. **Hero (`.tp-hero`)**: Headline `Premium teacup puppies in Dubai`, `every puppy is family` with wavy underline SVG, Quilt scallop pattern with stitched dashes, and Mascot peek stop.
+  2. **Meet the Pups (`.tp-meet`)**: `Meet the pups`, carousel track with 16 3D swinging doors, page counter (`1 / 2`), showroom floor, and Mascot sit stop.
+  3. **Two Ways (`.tp-paths`)**: `Two ways to meet your puppy`, fork post, Dubai showroom window with Burj Khalifa skyline vector, and imported Korean teacup puppy in flight trajectory vector from Korea to Dubai.
+  4. **Puppy Journey (`.tp-chat`)**: `Your puppy journey` with 3 numbered steps; full `.tp-phone` WhatsApp chat device mockup with avatar, verified name, conversation bubbles, media preview clips, flight route inside chat, typing indicator, compose bar, and Mascot sit stop.
+  5. **Puppy Passport (`.tp-passport`)**: `Why families trust TeddyPups`, passport booklet (`.tp-book`), left page with kicker `puppy passport` in Shantell Sans and Mascot sit stop; right page with 4 authentic stamps (`.tp-stamp--round`, `.tp-stamp--ticket`, `.tp-stamp--oval`, `.tp-stamp--scallop`); bottom with sunset horizon city silhouette.
+  6. **Happy Families Dusk (`.tp-dusk`)**: `Happy families & puppies`, client review note card, 8 polaroids with jagged washi tape (`--center`, `--left`, `--right`, `--tl`, `--tr`), facade doorway with glowing lamp, "See every happy family" button, and Mascot sit stop.
+  7. **Questions Night (`.tp-night`)**: `Questions, answered`, night sky with 11 twinkling golden stars (`.tp-twinkle`), left intro with wonder question mark `?` and Mascot sit stop tilting head; right side with 3 Q&As (`.tp-qa`) with golden star bullet icons.
+  8. **Welcome Home (`.tp-home`)**: `Ready to meet your new best friend?`, cozy house facade (`.tp-house`) with plants, hanging porch lamp, doorway with Max waiting inside, welcome mat with "welcome home" in Shantell Sans, Mascot bowing on the welcome mat (`pose="bow"`), and bottom WhatsApp & Visit action buttons.
+- **Progressive Image Loading**:
+  - `ImageWithLoader` component with background color placeholders (`bgColor`), custom focal alignment (`objectPosition`), and smooth `opacity-0` to `opacity-100` transition.
+- **Build Verification**:
+  - Production build clean (`npm run build` in 2.47s, 0 errors).

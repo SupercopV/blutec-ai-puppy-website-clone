@@ -1,0 +1,119 @@
+ct?e=eE(["tilt","love","sneeze","woof"],eM):"peek"===s.pose?e=eE(["peekaboo","woof","tilt","sneeze"],eM):"zoomies"===(e=(0,k.u)(eM,eN))&&(e="spin"),"peekaboo"===e&&en.length||(eM=e,t.reset(),en=k.M[e](ek(s),a))
+}
+,eS=e=>{
+"mouse"===e.pointerType&&F&&!(et<0)&&(F.petting(!0),F.wag(1))
+}
+,eT=()=>{
+F&&(F.petting(!1),et>=0&&F.wag(B?.meta[et]?.act==="basket"?.3:.7))
+}
+,eL=()=>{
+if(H||(0,l.F)())return;
+let e=T($);
+if(e.stops.length<2)return;
+B=e,H=!0,P.dataset.pup=e.lane?"lane":"live",a.hidden=!1;
+let t=e.meta[0];
+F=new i.f(z,t.pose,t.facing),U=scrollY,X=null,ep=K=performance.now()/1e3,em=!1,ef=null;
+let r=K,d=eb(e,scrollY);
+if(0===d.k&&0===d.t&&"peekaboo"===t.act){
+et=0,ea=r;
+let e={
+...o.o.peek,headY:120
+}
+,a=t.scene?.querySelectorAll("[data-pup-friend]")??[],s=a[0],n=a[a.length-1];
+en=[[r+.1,()=>F.setPose(e)],[r+.7,e=>(F.setPose("peek"),F.jolt(1.2),I("peekaboo!",e,1.6))],[r+1.5,e=>s&&(O={
+el:s,until:e+.8
+}
+)],[r+2.3,e=>n&&(O={
+el:n,until:e+.8
+}
+)],[r+3.1,()=>(O=null,F.wag(1))]]
+}
+else et=-1;
+addEventListener("pointermove",D,{
+passive:!0
+}
+),addEventListener("pup:cue",G),addEventListener("focusin",J),n.addEventListener("click",eR),n.addEventListener("pointerenter",eS),n.addEventListener("pointerleave",eT),s.y.update(e_,!0)
+}
+,eC=()=>{
+H&&(H=!1,(0,s.Y)(e_),delete P.dataset.pup,a.hidden=!0,delete a.dataset.anchor,ev=0,B?.meta.forEach(e=>{
+e.scene&&(delete e.scene.dataset.here,delete e.scene.dataset.visited)
+}
+),B=null,F=null,et=-1,removeEventListener("pointermove",D),removeEventListener("pup:cue",G),removeEventListener("focusin",J),n.removeEventListener("click",eR),n.removeEventListener("pointerenter",eS),n.removeEventListener("pointerleave",eT))
+}
+,eA=()=>{
+clearTimeout(t),t=setTimeout(()=>{
+if(!H||!B)return;
+let e=T($);
+if(e.stops.length<2)return eC();
+let t=Q,a=e.lane!==B.lane;
+if(B=e,P.dataset.pup=e.lane?"lane":"live",a&&(et=-1),t){
+let a=eb(e,scrollY);
+Z.x=t.x-a.x,Z.y=t.y-a.y,Z.s=t.s-a.s
+}
+
+}
+,120)
+}
+,e$=new ResizeObserver(eA);
+e$.observe(document.body),addEventListener("resize",eA),addEventListener("load",eA);
+let ez=matchMedia("(prefers-reduced-motion: reduce)"),eP=()=>(0,l.F)()?eC():eL();
+ez.addEventListener("change",eP),eL(),document.fonts?.ready.then(eA);
+let eB=()=>{
+eC(),clearTimeout(t),e$.disconnect(),removeEventListener("resize",eA),removeEventListener("load",eA),ez.removeEventListener("change",eP),L===eB&&(L=null)
+}
+;
+return L=eB,eB
+}
+,[]),(0,t.jsxs)(t.Fragment,{
+children:[(0,t.jsx)("div",{
+ref:M,"aria-hidden":!0,className:"pup-probe"
+}
+),(0,t.jsx)("div",{
+ref:w,"aria-hidden":!0,className:"pup-prints",children:Array.from({
+length:24
+}
+,(e,a)=>(0,t.jsx)("svg",{
+viewBox:"0 0 64 64",children:(0,t.jsx)("path",{
+d:n.f
+}
+)
+}
+,a))
+}
+),(0,t.jsx)("div",{
+ref:e,"aria-hidden":!0,className:"pup-layer",hidden:!0,"data-front":"true",children:(0,t.jsxs)("div",{
+ref:g,className:"pup-actor",children:[(0,t.jsx)("div",{
+ref:v,className:"pup-actor__body",children:(0,t.jsx)(r.f,{
+pose:"peek"
+}
+)
+}
+),(0,t.jsx)("span",{
+ref:N,className:"pup-bubble-at",children:(0,t.jsx)("span",{
+ref:_,className:"pup-bubble","data-show":"false"
+}
+)
+}
+)]
+}
+)
+}
+)]
+}
+)
+}
+,"cuePup",0,function(e){
+dispatchEvent(new CustomEvent("pup:cue",{
+detail:e
+}
+))
+}
+],91360)
+}
+,41405,72203,e=>{
+var t=e.i(43476),a=e.i(73459);
+e.s(["f",0,function({
+pose:e,facing:s="right",act:n,behind:l=!1,lane:r=!1,className:i="",style:o,label:d
+}
+){
+ret
