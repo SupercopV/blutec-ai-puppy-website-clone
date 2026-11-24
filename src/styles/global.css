@@ -48,6 +48,15 @@ h1, h2, h3, h4, .font-plush {
   transition: color 0.25s ease;
 }
 
+/* Hero quilt mascot teddy size: large and prominent matching real website */
+.tp-hero__stage {
+  --tw: clamp(18rem, min(32vw, 48vh), 28rem);
+}
+
+.tp-basket {
+  --bw: clamp(16rem, 26vw, 22rem);
+}
+
 /* Single moving mascot on home page: all static stop buddies are hidden while runner is active */
 html[data-pup="active"] .pup-stop > .pup-buddy {
   visibility: hidden !important;

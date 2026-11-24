@@ -4,8 +4,9 @@ import PupBuddy from './PupBuddy';
 export default function PupRunner() {
   const [active, setActive] = useState(false);
   const [actorState, setActorState] = useState({
-    x: 0,
-    y: 0,
+    left: 0,
+    top: 0,
+    scale: 1.15,
     pose: 'peek',
     facing: 'right',
     isRunning: false,
@@ -20,7 +21,7 @@ export default function PupRunner() {
   const animFrame = useRef(null);
   const lastPrintTime = useRef(0);
 
-  // Update stop positions on resize, font loading, or DOM changes
+  // Update stop positions & measured sizes from DOM
   const updateStops = () => {
     const stopEls = document.querySelectorAll('.pup-stop');
     if (!stopEls || stopEls.length === 0) return;
@@ -32,11 +33,18 @@ export default function PupRunner() {
       const facing = el.dataset.facing || 'right';
       const act = el.dataset.act || '';
       const behind = el.dataset.behind === 'true';
+
+      // Width from stop element; hero quilt (idx 0) is large and prominent
+      const measuredWidth = Math.max(rect.width || 0, idx === 0 ? 340 : 220);
+      const scale = measuredWidth / 300;
+
       return {
         idx,
         el,
-        x: rect.left + rect.width / 2,
-        y: rect.top + scrollY + rect.height / 2,
+        left: rect.left,
+        top: rect.top + scrollY,
+        width: measuredWidth,
+        scale,
         pose,
         facing,
         act,
@@ -44,18 +52,29 @@ export default function PupRunner() {
       };
     });
 
-    if (stopsRef.current.length > 0 && !active) {
-      setActive(true);
+    if (stopsRef.current.length > 0) {
+      if (!active) setActive(true);
+      const s0 = stopsRef.current[0];
+      setActorState((prev) => ({
+        ...prev,
+        left: s0.left,
+        top: s0.top - scrollY,
+        scale: s0.scale,
+        pose: s0.pose,
+        facing: s0.facing,
+        behind: s0.behind,
+        bubble: 'peekaboo!'
+      }));
     }
   };
 
   useEffect(() => {
-    // Set document attribute so all static scene puppies are hidden on the home page
+    // Hide all static scene puppies while runner is active
     document.documentElement.dataset.pup = 'active';
 
     updateStops();
     const timer1 = setTimeout(updateStops, 200);
-    const timer2 = setTimeout(updateStops, 700);
+    const timer2 = setTimeout(updateStops, 600);
 
     const onResize = () => updateStops();
     window.addEventListener('resize', onResize);
@@ -77,32 +96,33 @@ export default function PupRunner() {
         let progress = 0;
 
         for (let i = 0; i < stops.length - 1; i++) {
-          if (viewportCenter >= stops[i].y && viewportCenter <= stops[i + 1].y) {
+          if (viewportCenter >= stops[i].top && viewportCenter <= stops[i + 1].top) {
             currentStop = stops[i];
             nextStop = stops[i + 1];
-            const distance = nextStop.y - currentStop.y;
-            progress = distance > 0 ? (viewportCenter - currentStop.y) / distance : 0;
+            const distance = nextStop.top - currentStop.top;
+            progress = distance > 0 ? (viewportCenter - currentStop.top) / distance : 0;
             break;
-          } else if (viewportCenter < stops[0].y) {
+          } else if (viewportCenter < stops[0].top) {
             currentStop = stops[0];
             nextStop = stops[0];
             progress = 0;
-          } else if (viewportCenter > stops[stops.length - 1].y) {
+          } else if (viewportCenter > stops[stops.length - 1].top) {
             currentStop = stops[stops.length - 1];
             nextStop = stops[stops.length - 1];
             progress = 1;
           }
         }
 
-        // Interpolate position
-        const targetX = currentStop.x + (nextStop.x - currentStop.x) * progress;
-        const targetY = currentStop.y + (nextStop.y - currentStop.y) * progress - currentY;
+        // Interpolate target position and scale
+        const targetLeft = currentStop.left + (nextStop.left - currentStop.left) * progress;
+        const targetTop = currentStop.top + (nextStop.top - currentStop.top) * progress - currentY;
+        const targetScale = currentStop.scale + (nextStop.scale - currentStop.scale) * progress;
 
         const isMoving = Math.abs(currentY - lastScrollY.current) > 3;
         const movingDown = currentY > lastScrollY.current;
         lastScrollY.current = currentY;
 
-        // Determine pose, facing, and behind-layer state
+        // Determine pose, facing, and layer behindness
         let activePose = currentStop.pose;
         let activeFacing = currentStop.facing;
         let isBehind = false;
@@ -110,7 +130,7 @@ export default function PupRunner() {
 
         if (isMoving && currentStop !== nextStop && progress > 0.08 && progress < 0.92) {
           activePose = 'sit';
-          activeFacing = targetX < window.innerWidth * 0.5 ? 'right' : 'left';
+          activeFacing = targetLeft < window.innerWidth * 0.5 ? 'right' : 'left';
           isBehind = false;
         } else {
           // Docked at a stop
@@ -127,8 +147,9 @@ export default function PupRunner() {
         }
 
         setActorState({
-          x: targetX,
-          y: targetY,
+          left: targetLeft,
+          top: targetTop,
+          scale: targetScale,
           pose: activePose,
           facing: activeFacing,
           behind: isBehind,
@@ -136,7 +157,7 @@ export default function PupRunner() {
           bubble
         });
 
-        // Add paw print trails when running
+        // Add paw print trails when moving
         const now = Date.now();
         if (isMoving && now - lastPrintTime.current > 260) {
           lastPrintTime.current = now;
@@ -144,8 +165,8 @@ export default function PupRunner() {
             ...prev.slice(-18),
             {
               id: now,
-              x: targetX - 8 + (Math.random() * 16 - 8),
-              y: currentY + targetY + 50,
+              x: targetLeft + (150 * targetScale) - 8 + (Math.random() * 16 - 8),
+              y: currentY + targetTop + (220 * targetScale),
               angle: movingDown ? 15 : -15
             }
           ]);
@@ -164,7 +185,7 @@ export default function PupRunner() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Listen for custom cues
+    // Listen for speech cues
     const handleCue = (e) => {
       if (e.detail?.say) {
         setActorState((prev) => ({ ...prev, bubble: e.detail.say }));
@@ -209,8 +230,8 @@ export default function PupRunner() {
             style={{
               left: `${p.x}px`,
               top: `${p.y}px`,
-              width: '18px',
-              height: '18px',
+              width: '20px',
+              height: '20px',
               fill: 'var(--color-toffee)',
               opacity: 0.35,
               transform: `translate(-50%, -50%) rotate(${p.angle}deg)`
@@ -221,7 +242,7 @@ export default function PupRunner() {
         ))}
       </div>
 
-      {/* Single Floating Mascot Actor Layer */}
+      {/* Single Large Interactive Mascot Puppy Actor */}
       {active && (
         <div
           className="pup-layer pointer-events-none"
@@ -241,14 +262,20 @@ export default function PupRunner() {
               position: 'absolute',
               top: 0,
               left: 0,
-              transform: `translate3d(${actorState.x - 75}px, ${actorState.y - 70}px, 0)`,
-              transition: actorState.isRunning ? 'none' : 'transform 0.4s var(--ease-pounce)',
+              transform: `translate3d(${actorState.left.toFixed(1)}px, ${actorState.top.toFixed(1)}px, 0)`,
+              transition: actorState.isRunning ? 'none' : 'transform 0.35s var(--ease-pounce)',
               willChange: 'transform'
             }}
           >
+            {/* The dog body scaled dynamically to match the stop's full size */}
             <div
               className={`pup-actor__body ${actorState.isRunning ? 'animate-bounce' : ''}`}
-              style={{ width: '150px', height: '120px' }}
+              style={{
+                width: '300px',
+                height: '240px',
+                transform: `scale(${actorState.scale.toFixed(4)})`,
+                transformOrigin: '0 0'
+              }}
             >
               <PupBuddy
                 pose={actorState.pose}
@@ -257,13 +284,13 @@ export default function PupRunner() {
               />
             </div>
 
-            {/* Speech bubble */}
+            {/* Speech bubble positioned above the dog's head */}
             <span
               className="pup-bubble-at"
               style={{
                 position: 'absolute',
-                top: '-18px',
-                left: actorState.facing === 'left' ? '15px' : '90px'
+                top: `${(20 * actorState.scale).toFixed(0)}px`,
+                left: `${((actorState.facing === 'left' ? 40 : 210) * actorState.scale).toFixed(0)}px`
               }}
             >
               <span
