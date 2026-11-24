@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Ace",
+    "meta": "",
+    "href": "/puppies/pomeranian-ace-boy",
+    "ariaLabel": "Ace, Pomeranian, boy, 3 months, gone home",
+    "tilt": "-0.63deg",
+    "wash": "#f9cdbf",
+    "img": "/media/mihUKGFCatU3/0461cca56e/27b888_bac41adfadc44dce846a1c3fd0cdb0de-mv2.avif"
+  },
+  {
+    "name": "Leo",
+    "meta": "",
+    "href": "/puppies/poodle-leo-male",
+    "ariaLabel": "Leo, Poodle, boy, 3 months, gone home",
+    "tilt": "0.28deg",
+    "wash": "#f9cdbf",
+    "img": "/media/QgFG5s09n-ss/81af626d2d/27b888_5f9a7189bb21477d832047aae2040921-mv2.avif"
+  },
+  {
+    "name": "Mia",
+    "meta": "",
+    "href": "/puppies/maltipoo-mia-girl",
+    "ariaLabel": "Mia, Maltipoo, girl, 3 months, gone home",
+    "tilt": "-0.47deg",
+    "wash": "#bfddf5",
+    "img": "/media/4vu6_PGfL64H/537c367d85/27b888_747a4667fec640c69aad9bc045d61ac6-mv2.avif"
+  },
+  {
+    "name": "Sadie",
+    "meta": "",
+    "href": "/puppies/maltipoo-sadie-girl",
+    "ariaLabel": "Sadie, Maltipoo, girl, 3 months, gone home",
+    "tilt": "0.31deg",
+    "wash": "#e8c39a",
+    "img": "/media/159oT4F46uhk/b66c2be87f/27b888_ea6e7e0fcd43447d854657b6de98d4cb-mv2.avif"
+  },
+  {
+    "name": "Pomeranian",
+    "meta": "",
+    "href": "/puppies/blue-marle-pomeranian",
+    "ariaLabel": "Pomeranian, boy, 3 months, gone home",
+    "tilt": "2.49deg",
+    "wash": "#e8c39a",
+    "img": "/media/bMSEHnYcBTFF/970fdc1ee6/27b888_5e612a215bf343328c08d99e0e9c5a37-mv2.avif"
+  }
+]
