@@ -1,10 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
 import PupBuddy from '../components/PupBuddy';
 import PupRunner from '../components/PupRunner';
 import { HERO_LINEUP, MEET_DOORS, DUSK_POLAROIDS, NIGHT_FAQS } from '../data/homeData';
 import { SITE_CONFIG } from '../data/siteData';
+
+const PAW_PATH = "M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z";
 
 function ImageWithLoader({ src, alt, className = '', style = {}, bgColor = '#f8e8e8', objectPosition = '50% 50%' }) {
   const [loaded, setLoaded] = useState(false);
@@ -45,6 +47,49 @@ function ImageWithLoader({ src, alt, className = '', style = {}, bgColor = '#f8e
 export default function Home() {
   const [trackPage, setTrackPage] = useState(0);
   const trackRef = useRef(null);
+
+  // Puppy Journey interactive phone animation state
+  const [journeyStep, setJourneyStep] = useState(0);
+  const [journeyTyping, setJourneyTyping] = useState(false);
+  const journeyStepsRef = useRef(null);
+  const prevJourneyStepRef = useRef(-1);
+
+  useEffect(() => {
+    if (!journeyStepsRef.current) return;
+    const isDesktop = window.innerWidth >= 1024;
+    const stepEls = [...journeyStepsRef.current.children];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const idx = stepEls.indexOf(entry.target);
+            if (idx !== -1) {
+              setJourneyStep(idx);
+            }
+          }
+        }
+      },
+      { rootMargin: isDesktop ? '-28% 0px -62% 0px' : '-10% 0px -40% 0px' }
+    );
+
+    stepEls.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (journeyStep > prevJourneyStepRef.current && journeyStep >= 0) {
+      prevJourneyStepRef.current = journeyStep;
+      setJourneyTyping(true);
+      const timer = setTimeout(() => {
+        setJourneyTyping(false);
+        const cueText = journeyStep === 1 ? 'ooh, photos!' : journeyStep === 2 ? 'home soon!' : undefined;
+        if (cueText) {
+          window.dispatchEvent(new CustomEvent('pup:cue', { detail: { say: cueText, secs: 1.5 } }));
+        }
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [journeyStep]);
 
   const scrollTrack = (direction) => {
     if (trackRef.current) {
@@ -442,123 +487,170 @@ export default function Home() {
               A premium, step-by-step concierge experience. We make adoption simple, secure, and purely joyful.
             </p>
 
-            <ol className="tp-chat__steps">
-              <li className="tp-chat__step" data-step="0">
-                <span className="tp-chat__num font-plush">1</span>
+            <ol ref={journeyStepsRef} className="tp-chat__steps">
+              <li
+                className="tp-chat__step"
+                data-step="0"
+                data-active={journeyStep === 0 ? "true" : undefined}
+                data-done={journeyStep > 0 ? "true" : undefined}
+              >
+                <span className="tp-chat__num font-plush" aria-hidden="true">1</span>
                 <div>
-                  <h3 className="tp-chat__step-title font-plush">Choose your breed</h3>
+                  <h3 className="tp-chat__title font-plush">Choose your breed</h3>
                   <p className="tp-chat__text">
                     Select your preferred breed or tell us what you're looking for. We'll guide you based on availability and your lifestyle.
                   </p>
                 </div>
               </li>
-              <li className="tp-chat__step" data-step="1">
-                <span className="tp-chat__num font-plush">2</span>
+              <li
+                className="tp-chat__step"
+                data-step="1"
+                data-active={journeyStep === 1 ? "true" : undefined}
+                data-done={journeyStep > 1 ? "true" : undefined}
+              >
+                <span className="tp-chat__num font-plush" aria-hidden="true">2</span>
                 <div>
-                  <h3 className="tp-chat__step-title font-plush">Get photos &amp; details</h3>
+                  <h3 className="tp-chat__title font-plush">Get photos &amp; details</h3>
                   <p className="tp-chat__text">
                     Our team will share real photos, health details, and all necessary information directly on WhatsApp.
                   </p>
                 </div>
               </li>
-              <li className="tp-chat__step" data-step="2">
-                <span className="tp-chat__num font-plush">3</span>
+              <li
+                className="tp-chat__step"
+                data-step="2"
+                data-active={journeyStep === 2 ? "true" : undefined}
+                data-done={journeyStep > 2 ? "true" : undefined}
+              >
+                <span className="tp-chat__num font-plush" aria-hidden="true">3</span>
                 <div>
-                  <h3 className="tp-chat__step-title font-plush">Secure &amp; safe delivery</h3>
+                  <h3 className="tp-chat__title font-plush">Secure &amp; safe delivery</h3>
                   <p className="tp-chat__text">
                     Once confirmed, we handle everything professionally and ensure your puppy reaches you safely and stress-free.
                   </p>
                 </div>
               </li>
             </ol>
+
+            <Link to="/how-it-works" className="btn btn-ghost tp-chat__cta">
+              See how it works
+            </Link>
           </div>
 
-          {/* Authentic WhatsApp Phone Device Mockup */}
-          <div className="tp-phone" aria-label="A WhatsApp conversation with TeddyPups U.A.E." role="group">
-            <div className="tp-phone__bar">
-              <img
-                alt="TeddyPups"
-                src="/brand/logo.png"
-                width="40"
-                height="40"
-                className="tp-phone__avatar"
-              />
-              <span>
-                <span className="tp-phone__name">TeddyPups U.A.E.</span>
-                <span className="tp-phone__status">Online Concierge</span>
-              </span>
-            </div>
-
-            <div className="tp-phone__screen" aria-live="polite">
-              {/* Message Group 1: Inquiry */}
-              <div className="tp-msg tp-msg--me">
-                Looking for a Korean Teacup Maltipoo! What do you have available?
-              </div>
-
-              {/* Message Group 2: Reply */}
-              <div className="tp-msg-group">
-                <div className="tp-msg tp-msg--them">
-                  Hello! We have both local showroom puppies in Dubai and rare teacup imports available this week.
-                </div>
-                <div className="tp-chips">
-                  <span className="chip">Showroom</span>
-                  <span className="chip">Korean Teacup</span>
-                  <span className="chip">Worldwide travel</span>
-                </div>
-              </div>
-
-              {/* Message Group 3: Media Snaps */}
-              <div className="tp-msg tp-msg--them tp-msg--media">
-                <div className="tp-snaps">
-                  <span className="tp-snaps__one">
-                    <img
-                      src="/media/gAaGwoGej2g6/5523e884dd/b942a5_50f0ae67c9ff437d911597d52a9e63b3-mv2.jpg"
-                      alt="Korean Teacup Maltipoo female"
-                      className="w-full h-full object-cover"
-                    />
+          {/* Sticky Phone on Desktop / Streamlined Flow on Mobile */}
+          <div className="tp-chat__side">
+            <div className="tp-phone" aria-label="A WhatsApp conversation with TeddyPups U.A.E." role="group">
+              <div className="tp-phone__bar">
+                <img
+                  alt="TeddyPups"
+                  src="/brand/logo.png"
+                  width="40"
+                  height="40"
+                  className="tp-phone__avatar"
+                />
+                <span>
+                  <span className="tp-phone__name">TeddyPups U.A.E.</span>
+                  <span className="tp-phone__status">
+                    {journeyTyping ? 'typing…' : 'Online Concierge'}
                   </span>
-                  <span className="tp-clip">
-                    <img
-                      src="/media/Z0ToauDx7Eve/5fffe4d022/b942a5_4b8cfb8204d24eadaf524332aba1dc15-mv2.webp"
-                      alt="Max Maltipoo video clip"
-                      className="w-full h-full object-cover"
-                    />
-                    <span className="tp-clip__play font-scrawl">▶ video</span>
-                  </span>
-                </div>
+                </span>
               </div>
 
-              {/* Message Group 4: Delivery Flight Route */}
-              <div className="tp-msg tp-msg--them">
-                <div className="tp-route" aria-hidden="true">
-                  <span className="tp-route__line" />
-                  <span className="tp-route__dot" />
-                  <span className="tp-route__home" />
-                  <span className="tp-route__heart font-scrawl">♥</span>
-                  <span className="tp-route__paw" />
-                </div>
-                Safe travel directly to your door, fully vaccinated and certified.
-              </div>
+              <div className="tp-phone__screen" aria-live="polite">
+                {/* Greeting inquiry */}
+                <p className="tp-msg tp-msg--me">
+                  Looking for a Korean Teacup Maltipoo! What do you have available?
+                </p>
 
-              {/* Typing indicator */}
-              <div className="tp-typing">
-                <span className="dot" />
-                <span className="dot" />
-                <span className="dot" />
-              </div>
-
-              {/* Compose Bar */}
-              <div className="tp-phone__compose">
-                <a
-                  href={SITE_CONFIG.whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-whatsapp w-full flex items-center justify-center gap-2"
+                {/* Step 0: Reply with Breed Chips */}
+                <div
+                  className="tp-msg-group"
+                  data-step="0"
+                  data-show={journeyStep >= 0 ? "true" : "false"}
                 >
-                  <MessageCircle className="w-4 h-4 fill-current" />
-                  <span>Enquire on WhatsApp</span>
-                </a>
+                  <div className="tp-msg tp-msg--them">
+                    <p>Hello! We have both local showroom puppies in Dubai and rare teacup imports available this week.</p>
+                    <ul className="tp-chips" aria-label="Breeds we have now">
+                      <li><Link to="/puppies?breed=maltipoo">Maltipoo</Link></li>
+                      <li><Link to="/puppies?breed=pomeranian">Pomeranian</Link></li>
+                      <li><Link to="/puppies?breed=poodle">Poodle</Link></li>
+                      <li><Link to="/puppies?breed=cavapoo">Cavapoo</Link></li>
+                      <li><Link to="/puppies?breed=shih-tzu">Shih Tzu</Link></li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Step 1: Media Snaps */}
+                <div
+                  className="tp-msg-group"
+                  data-step="1"
+                  data-show={journeyStep >= 1 && (!journeyTyping || journeyStep > 1) ? "true" : "false"}
+                >
+                  <div className="tp-msg tp-msg--them tp-msg--media">
+                    <div className="tp-snaps">
+                      <span className="tp-snaps__one">
+                        <img
+                          src="/media/gAaGwoGej2g6/5523e884dd/b942a5_50f0ae67c9ff437d911597d52a9e63b3-mv2.jpg"
+                          alt="Korean Teacup Maltipoo female"
+                          className="w-full h-full object-cover"
+                        />
+                      </span>
+                      <span className="tp-clip">
+                        <img
+                          src="/media/Z0ToauDx7Eve/5fffe4d022/b942a5_4b8cfb8204d24eadaf524332aba1dc15-mv2.webp"
+                          alt="Max Maltipoo video clip"
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="tp-clip__play font-scrawl">
+                          <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5 fill-[#2a170e]">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                  <p className="tp-msg tp-msg--them">
+                    Our team will share real photos, health details, and all necessary information directly on WhatsApp.
+                  </p>
+                </div>
+
+                {/* Step 2: Safe delivery flight route */}
+                <div
+                  className="tp-msg-group"
+                  data-step="2"
+                  data-show={journeyStep >= 2 && !journeyTyping ? "true" : "false"}
+                >
+                  <div className="tp-msg tp-msg--them">
+                    <p>Safe travel directly to your door, fully vaccinated and certified.</p>
+                    <svg viewBox="0 0 220 70" className="tp-route" aria-hidden="true">
+                      <path d="M14 52 C 60 6, 120 70, 170 28" className="tp-route__line" />
+                      <circle cx="14" cy="52" r="5" className="tp-route__dot" />
+                      <path d="M164 32 l12 -12 l12 12 v14 h-24 z" className="tp-route__home" />
+                      <path d="M176 42 c-2-3-7-2-6 2c1 3 6 5 6 5s5-2 6-5c1-4-4-5-6-2z" className="tp-route__heart" />
+                      <path d={PAW_PATH} transform="translate(70 22) scale(.3) rotate(70 32 32)" className="tp-route__paw" />
+                      <path d={PAW_PATH} transform="translate(104 38) scale(.3) rotate(100 32 32)" className="tp-route__paw" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Animated Typing Indicator */}
+                <p className="tp-typing" data-show={journeyTyping ? "true" : "false"} aria-hidden="true">
+                  <span /><span /><span />
+                </p>
               </div>
+
+              {/* Compose bar */}
+              <a
+                href={SITE_CONFIG.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tp-phone__compose"
+              >
+                <span>Say hello on WhatsApp</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 20l18-8L3 4v6l12 2-12 2z" />
+                </svg>
+              </a>
             </div>
 
             {/* Mascot Sit Stop beside Phone */}

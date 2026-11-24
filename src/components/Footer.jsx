@@ -1,8 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import PupBuddy from './PupBuddy';
 
 export default function Footer() {
+  const location = useLocation();
+  const currentPath = location.pathname;
   return (
     <footer className="tp-footer relative pb-[calc(var(--bar-h)+2rem)] text-milk md:pb-10">
       {/* Hill curve SVG at the top of dark footer */}
@@ -78,41 +80,29 @@ export default function Footer() {
         <nav aria-label="Footer" className="md:col-span-3 md:col-start-7 md:row-span-2 md:row-start-1">
           <h2 className="font-scrawl text-lg text-honey">Explore</h2>
           <ul className="mt-4 space-y-2.5">
-            <li>
-              <Link className="font-semibold text-milk/90 underline-offset-4 hover:text-honey hover:underline" to="/puppies">
-                Available puppies
-              </Link>
-            </li>
-            <li>
-              <Link className="font-semibold text-milk/90 underline-offset-4 hover:text-honey hover:underline" to="/gone-home">
-                Gone home
-              </Link>
-            </li>
-            <li>
-              <Link className="font-semibold text-honey underline-offset-4 hover:text-honey hover:underline" to="/happy-families">
-                Happy families
-              </Link>
-            </li>
-            <li>
-              <Link className="font-semibold text-milk/90 underline-offset-4 hover:text-honey hover:underline" to="/how-it-works">
-                How it works
-              </Link>
-            </li>
-            <li>
-              <Link className="font-semibold text-milk/90 underline-offset-4 hover:text-honey hover:underline" to="/how-it-works#delivery">
-                Delivery &amp; collection
-              </Link>
-            </li>
-            <li>
-              <Link className="font-semibold text-milk/90 underline-offset-4 hover:text-honey hover:underline" to="/faq">
-                FAQ
-              </Link>
-            </li>
-            <li>
-              <Link className="font-semibold text-milk/90 underline-offset-4 hover:text-honey hover:underline" to="/contact">
-                Visit &amp; contact
-              </Link>
-            </li>
+            {[
+              { name: 'Available puppies', path: '/puppies' },
+              { name: 'Gone home', path: '/gone-home' },
+              { name: 'Happy families', path: '/happy-families' },
+              { name: 'How it works', path: '/how-it-works' },
+              { name: 'Delivery & collection', path: '/how-it-works#delivery' },
+              { name: 'FAQ', path: '/faq' },
+              { name: 'Visit & contact', path: '/contact' }
+            ].map((link) => {
+              const isActive = currentPath === link.path || (link.path === '/puppies' && currentPath.startsWith('/puppies'));
+              return (
+                <li key={link.name}>
+                  <Link
+                    to={link.path}
+                    className={`font-semibold underline-offset-4 hover:text-honey hover:underline transition-colors ${
+                      isActive ? 'text-honey' : 'text-milk/90'
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 

@@ -42,26 +42,23 @@ h1, h2, h3, h4, .font-plush {
   font-family: var(--font-hand);
 }
 
-/* Custom transitions and interactive polish */
+/* Nav link paw print styling aligns with original.css */
 .tp-nav-link {
   position: relative;
-  transition: color 0.2s ease;
+  transition: color 0.25s ease;
 }
 
-.tp-nav-link:hover .tp-nav-link__paw,
-.tp-nav-link.active .tp-nav-link__paw {
-  opacity: 1;
-  transform: scale(1) translateY(0);
+/* Single moving mascot on home page: all static stop buddies are hidden while runner is active */
+html[data-pup="active"] .pup-stop > .pup-buddy {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
-.tp-nav-link__paw {
-  position: absolute;
-  left: -1rem;
-  top: 50%;
-  transform: translateY(-50%) scale(0.6);
-  opacity: 0;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  color: var(--color-toffee);
+/* On non-home pages, the footer basket puppy is visible */
+html:not([data-pup="active"]) .tp-basket__pup > .pup-buddy {
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Floating bottom bar */

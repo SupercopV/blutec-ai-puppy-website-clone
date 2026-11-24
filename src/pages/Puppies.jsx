@@ -117,9 +117,7 @@ export default function Puppies() {
 
               {/* Self-Portrait Mascot Frame */}
               <div className="tp-sketchbook__self" data-reveal="true">
-                <div className="pup-buddy" data-facing="left">
-                  <PupBuddy facing="left" pose="sit" />
-                </div>
+                <PupBuddy facing="left" pose="sit" />
                 <span className="font-scrawl tp-sketchbook__caption">self-portrait</span>
               </div>
             </div>

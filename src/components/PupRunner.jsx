@@ -9,6 +9,7 @@ export default function PupRunner() {
     pose: 'peek',
     facing: 'right',
     isRunning: false,
+    behind: true,
     bubble: ''
   });
   const [pawPrints, setPawPrints] = useState([]);
@@ -19,7 +20,7 @@ export default function PupRunner() {
   const animFrame = useRef(null);
   const lastPrintTime = useRef(0);
 
-  // Update stop positions on resize or DOM changes
+  // Update stop positions on resize, font loading, or DOM changes
   const updateStops = () => {
     const stopEls = document.querySelectorAll('.pup-stop');
     if (!stopEls || stopEls.length === 0) return;
@@ -30,6 +31,7 @@ export default function PupRunner() {
       const pose = el.dataset.pose || 'sit';
       const facing = el.dataset.facing || 'right';
       const act = el.dataset.act || '';
+      const behind = el.dataset.behind === 'true';
       return {
         idx,
         el,
@@ -37,7 +39,8 @@ export default function PupRunner() {
         y: rect.top + scrollY + rect.height / 2,
         pose,
         facing,
-        act
+        act,
+        behind
       };
     });
 
@@ -47,9 +50,12 @@ export default function PupRunner() {
   };
 
   useEffect(() => {
-    // Initial measure after fonts and images settle
+    // Set document attribute so all static scene puppies are hidden on the home page
+    document.documentElement.dataset.pup = 'active';
+
     updateStops();
-    const timer = setTimeout(updateStops, 400);
+    const timer1 = setTimeout(updateStops, 200);
+    const timer2 = setTimeout(updateStops, 700);
 
     const onResize = () => updateStops();
     window.addEventListener('resize', onResize);
@@ -96,23 +102,27 @@ export default function PupRunner() {
         const movingDown = currentY > lastScrollY.current;
         lastScrollY.current = currentY;
 
-        // Determine pose & facing
+        // Determine pose, facing, and behind-layer state
         let activePose = currentStop.pose;
         let activeFacing = currentStop.facing;
+        let isBehind = false;
         let bubble = '';
 
         if (isMoving && currentStop !== nextStop && progress > 0.08 && progress < 0.92) {
           activePose = 'sit';
           activeFacing = targetX < window.innerWidth * 0.5 ? 'right' : 'left';
+          isBehind = false;
         } else {
           // Docked at a stop
-          if (progress < 0.1) {
+          if (progress <= 0.1) {
             activePose = currentStop.pose;
             activeFacing = currentStop.facing;
+            isBehind = currentStop.behind;
             if (currentStop.idx === 0) bubble = 'peekaboo!';
-          } else if (progress > 0.9) {
+          } else if (progress >= 0.9) {
             activePose = nextStop.pose;
             activeFacing = nextStop.facing;
+            isBehind = nextStop.behind;
           }
         }
 
@@ -121,20 +131,21 @@ export default function PupRunner() {
           y: targetY,
           pose: activePose,
           facing: activeFacing,
+          behind: isBehind,
           isRunning: isMoving && currentStop !== nextStop,
           bubble
         });
 
-        // Add paw print trails when moving
+        // Add paw print trails when running
         const now = Date.now();
-        if (isMoving && now - lastPrintTime.current > 280) {
+        if (isMoving && now - lastPrintTime.current > 260) {
           lastPrintTime.current = now;
           setPawPrints((prev) => [
             ...prev.slice(-18),
             {
               id: now,
-              x: targetX - 10 + (Math.random() * 20 - 10),
-              y: currentY + targetY + 60,
+              x: targetX - 8 + (Math.random() * 16 - 8),
+              y: currentY + targetY + 50,
               angle: movingDown ? 15 : -15
             }
           ]);
@@ -165,7 +176,9 @@ export default function PupRunner() {
     window.addEventListener('pup:cue', handleCue);
 
     return () => {
-      clearTimeout(timer);
+      delete document.documentElement.dataset.pup;
+      clearTimeout(timer1);
+      clearTimeout(timer2);
       clearTimeout(scrollTimeout.current);
       if (animFrame.current) cancelAnimationFrame(animFrame.current);
       window.removeEventListener('resize', onResize);
@@ -176,7 +189,7 @@ export default function PupRunner() {
   }, [active]);
 
   const handlePupClick = () => {
-    const reactions = ['woof!', '❤️', '🐾', 'sniff sniff!'];
+    const reactions = ['woof!', '❤️', '🐾', 'yip!'];
     const randomSay = reactions[Math.floor(Math.random() * reactions.length)];
     setActorState((prev) => ({ ...prev, bubble: randomSay }));
     setTimeout(() => {
@@ -186,7 +199,7 @@ export default function PupRunner() {
 
   return (
     <>
-      {/* 24 Paw prints trail left on the page */}
+      {/* Paw prints trail left on the page */}
       <div className="pup-prints pointer-events-none" aria-hidden="true">
         {pawPrints.map((p) => (
           <svg
@@ -208,15 +221,15 @@ export default function PupRunner() {
         ))}
       </div>
 
-      {/* Floating interactive Mascot Actor Layer */}
+      {/* Single Floating Mascot Actor Layer */}
       {active && (
         <div
           className="pup-layer pointer-events-none"
-          data-front="true"
+          data-front={actorState.behind ? 'false' : 'true'}
           style={{
             position: 'fixed',
             inset: 0,
-            zIndex: 35,
+            zIndex: actorState.behind ? 15 : 35,
             contain: 'layout paint style',
             overflow: 'hidden'
           }}
