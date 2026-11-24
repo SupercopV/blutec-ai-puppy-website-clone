@@ -75,13 +75,13 @@ export default function Puppies() {
       <div className="bg-[#fff8ea] border-b-2 border-[#2a170e] py-14 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-[110rem] text-center">
           <span className="font-scrawl text-base text-[#8e3f15] font-semibold">
-            healthy, loving & vet-certified
+            from Teddy's sketchbook
           </span>
           <h1 className="font-plush text-4xl sm:text-6xl font-extrabold text-[#2a170e] mt-1 mb-3">
             Available puppies
           </h1>
           <p className="text-base sm:text-lg text-[#5a3a28] max-w-2xl mx-auto">
-            Browse our gorgeous teacup and miniature puppies ready for adoption in our Downtown Dubai showroom or imported upon request.
+            Every listing shows real photos of the actual puppy. Open a profile to see them all, then ask us about them on WhatsApp.
           </p>
         </div>
       </div>
@@ -194,6 +194,36 @@ export default function Puppies() {
             </button>
           </div>
         )}
+
+        {/* ALREADY GONE HOME CALLOUT STRIP */}
+        <section aria-labelledby="gone-title" className="tp-gone-strip mt-24 border-t-2 border-[#2a170e]/15 pt-16">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-10 bg-[#fff8ea] border-3 border-[#2a170e] rounded-3xl p-8 sm:p-10 shadow-[6px_8px_0px_#2a170e]">
+            <div className="md:w-1/2">
+              <span className="font-scrawl text-sm text-[#8e3f15] font-semibold">tickets home</span>
+              <h2 className="font-plush text-3xl sm:text-4xl font-extrabold text-[#2a170e] mt-1" id="gone-title">
+                Already gone home
+              </h2>
+              <p className="mt-2 text-base text-[#5a3a28]">
+                These puppies have found their families. Looking for one just like them? Tell us — we'll help you find your match.
+              </p>
+              <Link className="btn btn-primary mt-6 inline-block" to="/gone-home">
+                See the puppies who've gone home
+              </Link>
+            </div>
+
+            <div className="flex items-center gap-4 overflow-x-auto pb-2">
+              <div className="w-28 sm:w-32 aspect-square rounded-2xl overflow-hidden border-2 border-[#2a170e] bg-white shadow-sm shrink-0 -rotate-2">
+                <img src="/puppies/asset_351586.jpg" alt="Adopted puppy Ace" className="w-full h-full object-cover" />
+              </div>
+              <div className="w-28 sm:w-32 aspect-square rounded-2xl overflow-hidden border-2 border-[#2a170e] bg-white shadow-sm shrink-0 rotate-3">
+                <img src="/puppies/asset_391444.jpg" alt="Adopted puppy Leo" className="w-full h-full object-cover" />
+              </div>
+              <div className="w-28 sm:w-32 aspect-square rounded-2xl overflow-hidden border-2 border-[#2a170e] bg-white shadow-sm shrink-0 -rotate-1">
+                <img src="/puppies/asset_400624.jpg" alt="Adopted puppy Mia" className="w-full h-full object-cover" />
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* Video Modal */}

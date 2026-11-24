@@ -18,13 +18,13 @@ export default function FAQ() {
         <div className="mx-auto max-w-4xl">
           <p className="font-scrawl text-base text-[#8e3f15] font-semibold flex items-center justify-center gap-1.5">
             <HelpCircle className="w-4 h-4 text-[#c2622b]" />
-            <span>everything you need to know</span>
+            <span>9 notes on the board</span>
           </p>
           <h1 className="font-plush text-4xl sm:text-6xl font-extrabold text-[#2a170e] mt-1 mb-4">
             Questions & answers
           </h1>
           <p className="text-base sm:text-lg text-[#5a3a28] max-w-2xl mx-auto leading-relaxed">
-            Have questions about health checks, showroom visits, or importing your dream puppy? Find clear answers below.
+            Can't find what you're looking for? Message us on WhatsApp — our team is available 24/7.
           </p>
         </div>
       </section>

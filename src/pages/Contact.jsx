@@ -64,10 +64,10 @@ export default function Contact() {
             {SITE_CONFIG.tagline}
           </p>
           <h1 className="font-plush text-4xl sm:text-6xl font-extrabold text-[#2a170e] mt-1 mb-4">
-            Visit & contact
+            Get in touch with us
           </h1>
           <p className="text-base sm:text-lg text-[#5a3a28] max-w-2xl mx-auto leading-relaxed">
-            Have questions about our puppies or adoption process? Fill out our letter below or book a private appointment in Downtown Dubai.
+            Have questions about our puppies or adoption process? Fill out the form, and our team will get back to you promptly. Whether ready to adopt or just seeking info, we'd love to hear from you!
           </p>
         </div>
       </section>
