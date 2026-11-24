@@ -5,7 +5,7 @@ import React from 'react';
  * Supports poses: 'sit' (default), 'snug' (in basket), 'peek' (behind quilt/fence), 'bow' (welcome mat).
  * Supports facing: 'left' or 'right'.
  */
-export default function PupBuddy({ facing = 'left', pose = 'sit', className = '' }) {
+export default function PupBuddy({ facing = 'left', pose = 'sit', className = '', svgRef }) {
   const isLeft = facing === 'left';
   const isSnug = pose === 'snug';
   const isPeek = pose === 'peek';
@@ -44,6 +44,7 @@ export default function PupBuddy({ facing = 'left', pose = 'sit', className = ''
   return (
     <div className={`pup-buddy ${className}`} data-facing={facing}>
       <svg 
+        ref={svgRef}
         viewBox="0 0 300 240" 
         style={{ overflow: 'visible' }} 
         role="img" 

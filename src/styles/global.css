@@ -1663,3 +1663,205 @@ html:not([data-pup="active"]) .tp-basket__pup > .pup-buddy {
 .tp-ticket__link:hover .tp-ticket__stub {
   rotate: 7deg;
 }
+
+/* ==========================================================================
+   AUTHENTIC TEDDY MASCOT RUNNER & MEET PINNED STYLES (MATCHED 100% TO REFERENCE)
+   ========================================================================== */
+
+/* Pinned Showroom (Scene 2) */
+.tp-meet[data-pinned] .tp-meet__stage {
+  height: 100vh;
+  padding-top: calc(var(--header-h, 76px) + clamp(1rem, 3vh, 2.5rem));
+  flex-direction: column;
+  padding-bottom: 0;
+  display: flex;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+}
+
+.tp-meet[data-pinned] .tp-meet__hall {
+  flex: 1;
+}
+
+.tp-meet[data-pinned] .tp-meet__track {
+  left: 0;
+  bottom: var(--floor-h);
+  align-items: flex-end;
+  gap: clamp(4.5rem, 6vw, 7rem);
+  width: max-content;
+  max-width: none;
+  padding-inline: 38vw 12vw;
+  display: flex;
+  position: absolute;
+}
+
+.tp-meet[data-pinned] .tp-door {
+  width: var(--door-w, clamp(8rem, min(15vw, 24vh), 16rem));
+}
+
+.tp-meet[data-pinned] :is(.tp-door__name, .tp-door__meta) {
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  overflow: hidden;
+}
+
+.tp-meet[data-pinned] .tp-door__name {
+  -webkit-line-clamp: 3;
+}
+
+.tp-meet[data-pinned] .tp-meet__floor {
+  height: var(--floor-h);
+  border-top: 3px solid var(--color-cocoa);
+  background: linear-gradient(to bottom, #2a170e29, transparent 22%),
+              repeating-linear-gradient(90deg, transparent 0 calc(11rem - 2px), #2a170e1f calc(11rem - 2px) 11rem) var(--floor-x, 0) 0 / auto,
+              linear-gradient(#e8b06a, #dc9a52);
+  display: block;
+  position: absolute;
+  inset: auto 0 0;
+  box-shadow: 0 -12px 0 -6px #f5d9a8;
+}
+
+.tp-meet[data-pinned] .tp-meet__teddy {
+  top: auto;
+  left: 14vw;
+  right: auto;
+  bottom: calc(var(--floor-h) * .42);
+  width: clamp(11rem, min(14vw, 24vh), 14rem);
+}
+
+/* Mascot Runner Layer & Actor */
+.pup-layer {
+  z-index: 30;
+  pointer-events: none;
+  contain: layout paint style;
+  position: fixed;
+  inset: 0;
+  overflow: clip;
+}
+
+.pup-layer[data-front="false"] {
+  z-index: 15;
+}
+
+.pup-layer[data-anchor="bottom"] {
+  height: 100lvh;
+  top: auto;
+}
+
+.pup-probe {
+  visibility: hidden;
+  pointer-events: none;
+  width: 0;
+  height: 100svh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.pup-actor {
+  will-change: transform;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.pup-actor__body {
+  transform-origin: 0 0;
+  width: 300px;
+}
+
+.pup-actor__body > svg {
+  width: 300px;
+  height: 240px;
+  display: block;
+}
+
+.pup-actor .pup-actor__body > svg :is(path, ellipse, circle) {
+  pointer-events: visiblePainted;
+  cursor: pointer;
+}
+
+.pup-bubble-at {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.pup-bubble {
+  border: 2.5px solid var(--color-cocoa);
+  background: var(--color-milk);
+  color: var(--color-cocoa);
+  font-family: var(--font-hand);
+  white-space: nowrap;
+  opacity: 0;
+  transform-origin: 30% 100%;
+  transition: scale 0.4s var(--ease-pounce), opacity 0.18s ease-out;
+  border-radius: 1.1rem 1.1rem 1.1rem 0.25rem;
+  padding: 0.3rem 0.85rem 0.35rem;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  translate: -50%;
+  scale: 0.4;
+  box-shadow: 2px 3px #2a170e2e;
+}
+
+.pup-bubble[data-show="true"] {
+  opacity: 1;
+  scale: 1;
+}
+
+.pup-prints {
+  z-index: 5;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+}
+
+.pup-prints > svg {
+  opacity: 0;
+  width: 15px;
+  height: 15px;
+  fill: var(--color-toffee);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Footer Basket Authentic Dimensions */
+.tp-basket {
+  --bw: clamp(14rem, 24vw, 19rem);
+  width: var(--bw);
+  aspect-ratio: 300/240;
+  margin-left: calc(var(--bw) * -.36);
+  position: relative;
+}
+
+.tp-basket > * {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.tp-basket > svg {
+  pointer-events: none;
+}
+
+.tp-basket__back {
+  z-index: 1;
+}
+
+.tp-basket__pup {
+  z-index: 10;
+}
+
+.tp-basket__front {
+  z-index: 25;
+}

@@ -1,369 +1,377 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import PupBuddy from './PupBuddy';
+import {
+  ANCHOR,
+  scanStops,
+  evaluatePosition,
+  snapScroll,
+  PupController,
+  BASE_POSES
+} from './pupMotionEngine';
+
+const PAW_PATH =
+  "M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z";
 
 export default function PupRunner() {
-  const [active, setActive] = useState(false);
-  const [actorState, setActorState] = useState({
-    left: 0,
-    top: 0,
-    scale: 1.15,
-    pose: 'peek',
-    facing: 'right',
-    isRunning: false,
-    behind: true,
-    bubble: ''
-  });
-  const [pawPrints, setPawPrints] = useState([]);
+  const layerRef = useRef(null);
+  const actorRef = useRef(null);
+  const bodyRef = useRef(null);
+  const svgRef = useRef(null);
+  const bubbleRef = useRef(null);
+  const bubbleAtRef = useRef(null);
+  const printsRef = useRef(null);
+  const controllerRef = useRef(null);
 
-  const stopsRef = useRef([]);
-  const lastScrollY = useRef(0);
-  const scrollTimeout = useRef(null);
-  const animFrame = useRef(null);
-  const lastPrintTime = useRef(0);
+  const bubbleTimer = useRef(null);
+  const lookTargetRef = useRef(null);
 
-  // Update stop positions & measured sizes from DOM
-  const updateStops = () => {
-    const stopEls = document.querySelectorAll('.pup-stop');
-    if (!stopEls || stopEls.length === 0) return;
+  const say = useCallback((text, duration = 1.6) => {
+    const bubbleEl = bubbleRef.current;
+    const bubbleAtEl = bubbleAtRef.current;
+    const controller = controllerRef.current;
+    if (!bubbleEl || !bubbleAtEl) return;
 
-    const scrollY = window.scrollY;
-    stopsRef.current = Array.from(stopEls).map((el, idx) => {
-      const rect = el.getBoundingClientRect();
-      const pose = el.dataset.pose || 'sit';
-      const facing = el.dataset.facing || 'right';
-      const act = el.dataset.act || '';
-      const behind = el.dataset.behind === 'true';
+    bubbleEl.textContent = text;
+    bubbleEl.dataset.show = 'true';
 
-      // Width from stop element; hero quilt (idx 0) is large and prominent
-      const measuredWidth = Math.max(rect.width || 0, idx === 0 ? 340 : 220);
-      const scale = measuredWidth / 300;
+    if (controller) {
+      const scale = controller.svg?.getBoundingClientRect()?.width
+        ? controller.svg.getBoundingClientRect().width / 300
+        : 1;
+      const bx = (controller.facingDir > 0 ? 214 : 300 - 214) * scale;
+      bubbleAtEl.style.transform = `translate(${bx.toFixed(1)}px, ${(30 * scale).toFixed(1)}px)`;
+    }
 
-      // Check if inside a pinned section (Scene 2 Meet)
-      const meetScene = el.closest('.tp-meet[data-pinned="true"]');
-      const pinRangeEl = meetScene ? meetScene.querySelector('[data-pin-range="true"]') : null;
-      let isPinned = false;
-      let pinFrom = 0;
-      let pinTo = 0;
-
-      if (meetScene && pinRangeEl) {
-        const pinRect = pinRangeEl.getBoundingClientRect();
-        pinFrom = pinRect.top + scrollY;
-        pinTo = pinFrom + Math.max(0, pinRect.height - window.innerHeight);
-        if (pinTo > pinFrom + 30) {
-          isPinned = true;
-        }
+    clearTimeout(bubbleTimer.current);
+    bubbleTimer.current = setTimeout(() => {
+      if (bubbleRef.current) {
+        bubbleRef.current.dataset.show = 'false';
       }
+    }, duration * 1000);
+  }, []);
 
-      return {
-        idx,
-        el,
-        left: rect.left,
-        top: rect.top + scrollY,
-        screenLeft: rect.left,
-        screenTop: rect.top,
-        isPinned,
-        pinFrom,
-        pinTo,
-        width: measuredWidth,
-        scale,
-        pose,
-        facing,
-        act,
-        behind
-      };
-    });
+  const handlePupClick = () => {
+    const controller = controllerRef.current;
+    if (!controller) return;
 
-    if (stopsRef.current.length > 0) {
-      if (!active) setActive(true);
-      const s0 = stopsRef.current[0];
-      setActorState((prev) => ({
-        ...prev,
-        left: s0.left,
-        top: s0.top - scrollY,
-        scale: s0.scale,
-        pose: s0.pose,
-        facing: s0.facing,
-        behind: s0.behind,
-        bubble: 'peekaboo!'
-      }));
+    const time = performance.now() / 1000;
+    const barks = ['woof!', 'wheee!', 'boing!', 'yip!', 'hello!'];
+    const pick = barks[Math.floor(Math.random() * barks.length)];
+
+    controller.hop(1.3);
+    controller.woof(time);
+    say(pick, 1.4);
+  };
+
+  const handlePointerEnter = () => {
+    const controller = controllerRef.current;
+    if (controller) {
+      controller.petting(true);
+      controller.wag(1);
+    }
+  };
+
+  const handlePointerLeave = () => {
+    const controller = controllerRef.current;
+    if (controller) {
+      controller.petting(false);
+      controller.wag(0.7);
     }
   };
 
   useEffect(() => {
-    // Hide all static scene puppies while runner is active
+    // Hide static scene puppies on home page while runner is active
     document.documentElement.dataset.pup = 'active';
 
-    updateStops();
-    const timer1 = setTimeout(updateStops, 200);
-    const timer2 = setTimeout(updateStops, 600);
+    const layerEl = layerRef.current;
+    const actorEl = actorRef.current;
+    const bodyEl = bodyRef.current;
+    const svgEl = svgRef.current;
+    const printsEl = printsRef.current;
+    if (!layerEl || !actorEl || !bodyEl || !svgEl || !printsEl) return;
 
-    const onResize = () => updateStops();
-    window.addEventListener('resize', onResize);
-    window.addEventListener('load', onResize);
+    const isMobile = window.innerWidth < 768;
+    let data = scanStops(isMobile);
+    if (!data || data.stops.length < 2) return;
 
-    const handleScroll = () => {
-      if (animFrame.current) return;
+    const pawPool = Array.from(printsEl.querySelectorAll('svg'));
+    let pawIndex = 0;
+    let lastStepStop = -1;
+    let lastStepIndex = -1;
 
-      animFrame.current = requestAnimationFrame(() => {
-        animFrame.current = null;
-        const currentY = window.scrollY;
-        const stops = stopsRef.current;
-        if (stops.length === 0) return;
+    const initialMeta = data.meta[0];
+    const controller = new PupController(svgEl, initialMeta.pose, initialMeta.facing);
+    controllerRef.current = controller;
 
-        const isMoving = Math.abs(currentY - lastScrollY.current) > 2;
-        const movingDown = currentY > lastScrollY.current;
-        lastScrollY.current = currentY;
+    let animFrame = null;
+    let lastTime = performance.now() / 1000;
+    let lastScrollY = window.scrollY;
+    let lastScrollMoveTime = lastTime;
+    let lastDockedIndex = -1;
+    let lastPos = null;
+    let lastHallX = null;
 
-        let targetLeft = stops[0].left;
-        let targetTop = stops[0].top - currentY;
-        let targetScale = stops[0].scale;
-        let activePose = stops[0].pose;
-        let activeFacing = stops[0].facing;
-        let isBehind = stops[0].behind;
-        let bubble = '';
-        let isRunning = false;
+    // Initial positioning
+    const initialPos = evaluatePosition(data.stops, data.holds, window.scrollY, data.safe, data.blend);
+    actorEl.style.transform = `translate3d(${(initialPos.x - ANCHOR.x * initialPos.s).toFixed(2)}px, ${(initialPos.y - ANCHOR.y * initialPos.s).toFixed(2)}px, 0)`;
+    bodyEl.style.transform = `scale(${initialPos.s.toFixed(4)})`;
+    layerEl.dataset.front = String(initialPos.front);
+    layerEl.hidden = false;
 
-        // Check if currently inside a pinned stop (like Scene 2 Meet)
-        const pinnedStop = stops.find((s) => s.isPinned && currentY >= s.pinFrom && currentY <= s.pinTo);
+    // Greeting peekaboo on landing at the top of the page
+    if (window.scrollY < 60 && initialMeta.act === 'peekaboo') {
+      const introTimer = setTimeout(() => {
+        controller.jolt(1.2);
+        say('peekaboo!', 1.6);
+      }, 700);
 
-        if (pinnedStop) {
-          // Inside pinned hallway: dog stays anchored at 14vw on the floor
-          const liveRect = pinnedStop.el ? pinnedStop.el.getBoundingClientRect() : null;
-          targetLeft = liveRect ? liveRect.left : pinnedStop.screenLeft;
-          targetTop = liveRect ? liveRect.top : pinnedStop.screenTop;
-          targetScale = liveRect && liveRect.width > 0 ? liveRect.width / 300 : pinnedStop.scale;
-          activePose = 'walk';
-          activeFacing = 'right';
-          isBehind = false;
-          isRunning = isMoving;
-        } else {
-          // Find which interval currentY falls into
-          let currentStop = stops[0];
-          let nextStop = stops[0];
-          let progress = 0;
+      var clearIntroTimer = () => clearTimeout(introTimer);
+    }
 
-          for (let i = 0; i < stops.length - 1; i++) {
-            const sFrom = stops[i];
-            const sTo = stops[i + 1];
+    // Main 60fps physics & motion loop
+    const tick = () => {
+      animFrame = requestAnimationFrame(tick);
+      const now = performance.now() / 1000;
+      const dt = Math.min(0.05, now - lastTime);
+      lastTime = now;
 
-            const rangeStart = sFrom.isPinned ? sFrom.pinTo : (i === 0 ? stops[0].top : stops[i].top - window.innerHeight * 0.25);
-            const rangeEnd = sTo.isPinned ? sTo.pinFrom : (stops[i + 1].top - window.innerHeight * 0.35);
+      const currentScrollY = window.scrollY;
+      const scrollDelta = currentScrollY - lastScrollY;
+      lastScrollY = currentScrollY;
 
-            if (currentY >= rangeStart && currentY <= rangeEnd) {
-              currentStop = sFrom;
-              nextStop = sTo;
-              const dist = Math.max(1, rangeEnd - rangeStart);
-              progress = Math.min(1, Math.max(0, (currentY - rangeStart) / dist));
-              break;
-            } else if (currentY < rangeStart && i === 0) {
-              currentStop = stops[0];
-              nextStop = stops[0];
-              progress = 0;
-              break;
-            } else if (i === stops.length - 2 && currentY > rangeEnd) {
-              currentStop = stops[stops.length - 1];
-              nextStop = stops[stops.length - 1];
-              progress = 1;
-            }
+      if (Math.abs(scrollDelta) > 0.5) {
+        lastScrollMoveTime = now;
+      }
+
+      // If scroll has rested for > 250ms, snap to closest stable stop
+      const isScrollResting = now - lastScrollMoveTime > 0.25;
+      const targetScrollY = isScrollResting
+        ? snapScroll(data.stops, data.holds, currentScrollY)
+        : currentScrollY;
+
+      const pos = evaluatePosition(data.stops, data.holds, targetScrollY, data.safe, data.blend);
+      const isDocked = pos.t === 0;
+      const stopIdx = pos.k;
+      const mainTop = document.querySelector('main')?.offsetTop || 0;
+
+      if (isDocked) {
+        if (lastDockedIndex !== stopIdx) {
+          lastDockedIndex = stopIdx;
+          const currentMeta = data.meta[stopIdx];
+          controller.reset();
+          controller.setPose(currentMeta.pose);
+          controller.face(currentMeta.facing, 0.14);
+          controller.stride(0);
+          controller.wag(currentMeta.act === 'basket' ? 0.3 : 0.7);
+
+          if (currentMeta.act === 'basket') {
+            controller.jolt(0.4);
           }
+        }
 
-          if (currentStop === nextStop) {
-            const liveRect = currentStop.el ? currentStop.el.getBoundingClientRect() : null;
-            targetLeft = liveRect ? liveRect.left : currentStop.left;
-            targetTop = liveRect ? liveRect.top : (currentStop.top - currentY);
-            targetScale = liveRect && liveRect.width > 0 ? liveRect.width / 300 : currentStop.scale;
-            activePose = currentStop.pose;
-            activeFacing = currentStop.facing;
-            isBehind = currentStop.behind;
-            if (currentStop.idx === 0 && currentY < 80) bubble = 'peekaboo!';
-          } else {
-            // Live DOM coordinates for buttery transition
-            const fromRect = currentStop.el ? currentStop.el.getBoundingClientRect() : null;
-            const toRect = nextStop.el ? nextStop.el.getBoundingClientRect() : null;
+        const currentMeta = data.meta[stopIdx];
 
-            const fromLeft = fromRect ? fromRect.left : currentStop.left;
-            const fromTop = fromRect ? fromRect.top : (currentStop.top - currentY);
-            const toLeft = toRect ? toRect.left : nextStop.left;
-            const toTop = toRect ? toRect.top : (nextStop.top - currentY);
+        // Scene 2 Meet Showroom treadmill walking
+        if (currentMeta.act === 'treadmill' || currentMeta.trackEl) {
+          const trackEl = currentMeta.trackEl || document.querySelector('.tp-meet__track');
+          if (trackEl) {
+            const trackLeft = trackEl.getBoundingClientRect().left;
+            const diffX = lastHallX === null ? 0 : trackLeft - lastHallX;
+            lastHallX = trackLeft;
 
-            targetLeft = fromLeft + (toLeft - fromLeft) * progress;
-            targetTop = fromTop + (toTop - fromTop) * progress;
-            targetScale = currentStop.scale + (nextStop.scale - currentStop.scale) * progress;
-
-            if (progress <= 0.08) {
-              activePose = currentStop.pose;
-              activeFacing = currentStop.facing;
-              isBehind = currentStop.behind;
-            } else if (progress >= 0.92) {
-              activePose = nextStop.pose;
-              activeFacing = nextStop.facing;
-              isBehind = nextStop.behind;
+            controller.walkedTo(-trackLeft / Math.max(0.05, pos.s));
+            if (Math.abs(diffX) > 0.15) {
+              controller.setPose('walk');
+              controller.stride(1);
+              controller.face(diffX < 0 ? 1 : -1, 0.16);
             } else {
-              activePose = 'sit';
-              activeFacing = targetLeft < window.innerWidth * 0.5 ? 'right' : 'left';
-              isBehind = false;
-              isRunning = isMoving;
+              controller.setPose('stand');
+              controller.stride(0);
             }
+          }
+        } else if (currentMeta.act === 'tilt') {
+          // Scene 7 Questions curious head tilt
+          const tiltSin = Math.sin(0.9 * now);
+          controller.cock(tiltSin > 0.35 ? 13 : (tiltSin < -0.35 ? -10 : 0));
+        }
+      } else {
+        // Traveling along cubic bezier path between stops
+        lastDockedIndex = -1;
+        lastHallX = null;
+
+        if (pos.airborne) {
+          controller.setPose('hop');
+          controller.stride(0);
+        } else {
+          controller.setPose('walk');
+          controller.stride(1);
+        }
+
+        controller.walkedTo(pos.walked / Math.max(0.05, pos.s));
+
+        // Turn head & body towards travel heading
+        if (lastPos) {
+          const dx = pos.x - lastPos.x;
+          const dy = pos.y - lastPos.y;
+          if (Math.abs(dx) > 0.6 && Math.abs(dx) > 0.35 * Math.abs(dy)) {
+            controller.face(dx > 0 ? 1 : -1, 0.16);
           }
         }
 
-        setActorState({
-          left: targetLeft,
-          top: targetTop,
-          scale: targetScale,
-          pose: activePose,
-          facing: activeFacing,
-          behind: isBehind,
-          isRunning,
-          bubble
-        });
+        // Paw print stamping along the ground
+        const step = Math.floor(pos.walked / (34 * pos.s));
+        if (pos.k === lastStepStop && step !== lastStepIndex && !pos.airborne && lastPos && pawPool.length > 0) {
+          const n = 1 & step;
+          const legX = n ? 186 : 110;
+          const r = pos.x - ANCHOR.x * pos.s;
+          const i = pos.y - ANCHOR.y * pos.s;
+          const footX = r + (controller.facingDir > 0 ? legX : 300 - legX) * pos.s;
+          const footY = i + 226 * pos.s + currentScrollY - mainTop + (n ? -4 : 4) * pos.s;
+          const angle = Math.atan2(pos.y - lastPos.y + scrollDelta, pos.x - lastPos.x) + Math.PI / 2;
+          const size = 14 * Math.max(0.75, 1.5 * pos.s);
 
-        // Add paw print trails when moving
-        const now = Date.now();
-        if (isMoving && now - lastPrintTime.current > 260) {
-          lastPrintTime.current = now;
-          setPawPrints((prev) => [
-            ...prev.slice(-18),
-            {
-              id: now,
-              x: targetLeft + (150 * targetScale) - 8 + (Math.random() * 16 - 8),
-              y: currentY + targetTop + (220 * targetScale),
-              angle: movingDown ? 15 : -15
-            }
-          ]);
+          const pawSvg = pawPool[pawIndex % pawPool.length];
+          pawIndex++;
+
+          pawSvg.style.transform = `translate(${(footX - size / 2).toFixed(1)}px, ${(footY - size / 2).toFixed(1)}px) rotate(${angle.toFixed(3)}rad)`;
+          pawSvg.style.width = pawSvg.style.height = `${size.toFixed(1)}px`;
+          pawSvg.animate(
+            [
+              { opacity: 0 },
+              { opacity: 0.45, offset: 0.08 },
+              { opacity: 0.45, offset: 0.5 },
+              { opacity: 0 }
+            ],
+            { duration: 2600, easing: 'ease-out' }
+          );
         }
+        lastStepStop = pos.k;
+        lastStepIndex = step;
+      }
 
-        // Reset running state after scroll stops
-        clearTimeout(scrollTimeout.current);
-        scrollTimeout.current = setTimeout(() => {
-          setActorState((prev) => ({
-            ...prev,
-            isRunning: false
-          }));
-        }, 150);
+      lastPos = { x: pos.x, y: pos.y };
+
+      // Update Scene attributes
+      data.meta.forEach((m, idx) => {
+        if (m.scene) {
+          m.scene.dataset.here = String(isDocked && idx === stopIdx);
+          m.scene.dataset.visited = String(idx <= stopIdx || (idx === stopIdx + 1 && pos.t > 0.92));
+        }
       });
+
+      // Update Actor DOM position
+      actorEl.style.transform = `translate3d(${(pos.x - ANCHOR.x * pos.s).toFixed(2)}px, ${(pos.y - ANCHOR.y * pos.s).toFixed(2)}px, 0)`;
+      bodyEl.style.transform = `scale(${pos.s.toFixed(4)})`;
+      layerEl.dataset.front = String(pos.front);
+      actorEl.dataset.holding = String(isDocked);
+
+      // Bubble position if visible
+      const bubbleEl = bubbleRef.current;
+      const bubbleAtEl = bubbleAtRef.current;
+      if (bubbleEl && bubbleAtEl && bubbleEl.dataset.show === 'true') {
+        const bx = (controller.facingDir > 0 ? 214 : 300 - 214) * pos.s;
+        bubbleAtEl.style.transform = `translate(${bx.toFixed(1)}px, ${(30 * pos.s).toFixed(1)}px)`;
+      }
+
+      // Cursor gaze tracking
+      const look = lookTargetRef.current;
+      if (look && now - look.t < 2.5) {
+        controller.lookAt(look);
+      } else {
+        controller.lookAt(null);
+      }
+
+      // Tick skeletal springs, ear bounce, blinking, tail wag
+      controller.tick(dt, now);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    animFrame = requestAnimationFrame(tick);
 
-    // Listen for speech cues
+    // Re-scan stops on resize or document layout change
+    let resizeTimer = null;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const nextData = scanStops(window.innerWidth < 768);
+        if (nextData && nextData.stops.length >= 2) {
+          data = nextData;
+        }
+      }, 120);
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('load', handleResize);
+
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(document.body);
+
+    // Track mouse cursor for live puppy gaze
+    const handlePointerMove = (e) => {
+      lookTargetRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        t: performance.now() / 1000
+      };
+    };
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+
+    // Custom speech cue event listener
     const handleCue = (e) => {
       if (e.detail?.say) {
-        setActorState((prev) => ({ ...prev, bubble: e.detail.say }));
-        setTimeout(() => {
-          setActorState((prev) => ({ ...prev, bubble: '' }));
-        }, (e.detail.secs || 1.5) * 1000);
+        say(e.detail.say, e.detail.secs || 1.6);
       }
     };
     window.addEventListener('pup:cue', handleCue);
 
     return () => {
       delete document.documentElement.dataset.pup;
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(scrollTimeout.current);
-      if (animFrame.current) cancelAnimationFrame(animFrame.current);
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('load', onResize);
-      window.removeEventListener('scroll', handleScroll);
+      if (clearIntroTimer) clearIntroTimer();
+      clearTimeout(resizeTimer);
+      clearTimeout(bubbleTimer.current);
+      if (animFrame) cancelAnimationFrame(animFrame);
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('load', handleResize);
+      window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pup:cue', handleCue);
     };
-  }, [active]);
-
-  const handlePupClick = () => {
-    const reactions = ['woof!', '❤️', '🐾', 'yip!'];
-    const randomSay = reactions[Math.floor(Math.random() * reactions.length)];
-    setActorState((prev) => ({ ...prev, bubble: randomSay }));
-    setTimeout(() => {
-      setActorState((prev) => ({ ...prev, bubble: '' }));
-    }, 1800);
-  };
+  }, [say]);
 
   return (
     <>
-      {/* Paw prints trail left on the page */}
-      <div className="pup-prints pointer-events-none" aria-hidden="true">
-        {pawPrints.map((p) => (
-          <svg
-            key={p.id}
-            viewBox="0 0 64 64"
-            className="absolute transition-opacity duration-1000 ease-out"
-            style={{
-              left: `${p.x}px`,
-              top: `${p.y}px`,
-              width: '20px',
-              height: '20px',
-              fill: 'var(--color-toffee)',
-              opacity: 0.35,
-              transform: `translate(-50%, -50%) rotate(${p.angle}deg)`
-            }}
-          >
-            <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
+      {/* 24 Paw prints pre-rendered pool */}
+      <div ref={printsRef} aria-hidden="true" className="pup-prints">
+        {Array.from({ length: 24 }, (_, i) => (
+          <svg key={i} viewBox="0 0 64 64">
+            <path d={PAW_PATH} />
           </svg>
         ))}
       </div>
 
-      {/* Single Large Interactive Mascot Puppy Actor */}
-      {active && (
+      {/* Single Live Mascot Actor Layer */}
+      <div
+        ref={layerRef}
+        aria-hidden="true"
+        className="pup-layer"
+        data-front="true"
+        hidden
+      >
         <div
-          className="pup-layer pointer-events-none"
-          data-front={actorState.behind ? 'false' : 'true'}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: actorState.behind ? 15 : 35,
-            contain: 'layout paint style',
-            overflow: 'hidden'
-          }}
+          ref={actorRef}
+          className="pup-actor"
+          onClick={handlePupClick}
+          onPointerEnter={handlePointerEnter}
+          onPointerLeave={handlePointerLeave}
         >
-          <div
-            className="pup-actor pointer-events-auto cursor-pointer"
-            onClick={handlePupClick}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              transform: `translate3d(${actorState.left.toFixed(1)}px, ${actorState.top.toFixed(1)}px, 0)`,
-              transition: actorState.isRunning ? 'none' : 'transform 0.35s var(--ease-pounce)',
-              willChange: 'transform'
-            }}
-          >
-            {/* The dog body scaled dynamically to match the stop's full size */}
-            <div
-              className={`pup-actor__body ${actorState.isRunning ? 'animate-bounce' : ''}`}
-              style={{
-                width: '300px',
-                height: '240px',
-                transform: `scale(${actorState.scale.toFixed(4)})`,
-                transformOrigin: '0 0'
-              }}
-            >
-              <PupBuddy
-                pose={actorState.pose}
-                facing={actorState.facing}
-                className="w-full h-full"
-              />
-            </div>
-
-            {/* Speech bubble positioned above the dog's head */}
-            <span
-              className="pup-bubble-at"
-              style={{
-                position: 'absolute',
-                top: `${(20 * actorState.scale).toFixed(0)}px`,
-                left: `${((actorState.facing === 'left' ? 40 : 210) * actorState.scale).toFixed(0)}px`
-              }}
-            >
-              <span
-                className="pup-bubble"
-                data-show={actorState.bubble ? 'true' : 'false'}
-              >
-                {actorState.bubble}
-              </span>
-            </span>
+          <div ref={bodyRef} className="pup-actor__body">
+            <PupBuddy svgRef={svgRef} pose="peek" />
           </div>
+
+          <span ref={bubbleAtRef} className="pup-bubble-at">
+            <span ref={bubbleRef} className="pup-bubble" data-show="false" />
+          </span>
         </div>
-      )}
+      </div>
     </>
   );
 }
