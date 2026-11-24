@@ -271,3 +271,38 @@ When recording your Loom video walkthrough for the hiring team, highlight the fo
    - Integrated next/previous photo navigation arrows into the photo lightbox viewer.
 
 
+
+
+## Phase 8: 100% Recreation of the "How It Works" Page (`https://puppy.instabizweb.com/how-it-works`)
+
+- **Analysis & Extraction**:
+  - Extracted the exact DOM structure and classes from the reference website.
+  - Extracted 69 exact CSS rules and keyframe animations (`tp-plane-bob`, `tp-step-in`, `tp-stamp-in`) directly from the live CSS bundle.
+- **Section-by-Section Recreation**:
+  1. **Sky Gradient Scene (`.tp-scene`)**:
+     - Custom properties `--sky-top: #fffbf3` and `--sky-bottom: #f6cc85` matching the warm sunrise aesthetic.
+     - Headline `How it works` in Fraunces display font (`font-plush text-giant`) and wide lede text.
+     - Sticky jump navigation with 4 anchor chips: `1 Two ways home`, `2 Our premium puppy promise`, `3 Delivery & collection`, `4 Why choose us`.
+  2. **Two Ways Home Interactive Switch (`.tp-switch`)**:
+     - Sliding organic thumb with spring curve: `translate: calc(var(--at) * 100%) 0; transition: translate .5s var(--ease-pounce)`.
+     - Dual tabs (`In Dubai` / `meet in person` and `Imported` / `order upon request`).
+     - Companion sitting mascot `<PupBuddy facing="right" pose="sit" />`.
+     - Panel 1 ("In Dubai"): Downtown Dubai postcard with skyline SVG, Burj Khalifa silhouette, and 4 roadmap steps with colored icons.
+     - Panel 2 ("Imported"): Flight route postcard with curved trajectory, animated airplane, and 4 import roadmap steps.
+  3. **Puppy Promise Passport (`.tp-paper -rotate-[0.6deg]`)**:
+     - Radial patterned notebook background with dashed inner border.
+     - 3 tilted postal stamps (`tp-stamp`):
+       - Round stamp: `Hand-selected breeders` (`--ink-stamp: #a24a1a`, `--tilt: -8deg`).
+       - Ticket stamp: `Full transparency` (`--ink-stamp: #1f6b45`, `--tilt: 5deg`).
+       - Oval stamp: `Safe, stress-free delivery` (`--ink-stamp: #5a3a28`, `--tilt: -4deg`).
+  4. **Delivery & Collection Grid (`#delivery`)**:
+     - 4 delivery methods with clear typography and spacing.
+     - Flight path diagram with Korea -> Dubai trajectory and multi-piece airplane vector.
+  5. **Why Choose Us (`#why`)**:
+     - 3 value proposition rows with 64x64 illustrated vectors (`International cargo`, `Support 24/7`, `Health guarantee`).
+  6. **Unique and High Quality Puppies CTA Board (`.tp-board`)**:
+     - Dashed border inset, shadow, green WhatsApp action button, outlined catalog button.
+     - Polite bowing mascot `<PupBuddy facing="left" pose="bow" />`.
+- **Build & Verification**:
+  - Vite production build cleanly verified (`dist/assets/`).
+  - Hot Module Replacement active and verified on `http://localhost:3000/how-it-works`.
