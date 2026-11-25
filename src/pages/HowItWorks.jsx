@@ -29,22 +29,70 @@ export default function HowItWorks() {
 
             {/* On this page navigation */}
             <nav aria-label="On this page" className="mt-10 flex flex-wrap gap-2">
-              <a href="#two-ways" className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft">
+              <a
+                href="#two-ways"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById('two-ways');
+                  if (el) {
+                    const offset = el.getBoundingClientRect().top + window.pageYOffset - 90;
+                    window.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+                    window.history.pushState(null, '', '#two-ways');
+                  }
+                }}
+                className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft"
+              >
                 <span className="font-plush text-toffee">1</span> Two ways home
               </a>
-              <a href="#promise" className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft">
+              <a
+                href="#promise"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById('promise');
+                  if (el) {
+                    const offset = el.getBoundingClientRect().top + window.pageYOffset - 90;
+                    window.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+                    window.history.pushState(null, '', '#promise');
+                  }
+                }}
+                className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft"
+              >
                 <span className="font-plush text-toffee">2</span> Our premium puppy promise
               </a>
-              <a href="#delivery" className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft">
+              <a
+                href="#delivery"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById('delivery');
+                  if (el) {
+                    const offset = el.getBoundingClientRect().top + window.pageYOffset - 90;
+                    window.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+                    window.history.pushState(null, '', '#delivery');
+                  }
+                }}
+                className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft"
+              >
                 <span className="font-plush text-toffee">3</span> Delivery &amp; collection
               </a>
-              <a href="#why" className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft">
+              <a
+                href="#why"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById('why');
+                  if (el) {
+                    const offset = el.getBoundingClientRect().top + window.pageYOffset - 90;
+                    window.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+                    window.history.pushState(null, '', '#why');
+                  }
+                }}
+                className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft"
+              >
                 <span className="font-plush text-toffee">4</span> Why choose us
               </a>
             </nav>
 
             {/* SECTION 1: TWO WAYS HOME */}
-            <div id="two-ways">
+            <div id="two-ways" className="scroll-mt-28">
               <section className="tp-journeys" aria-labelledby="two-ways-title">
                 <div className="tp-journeys__top">
                   <div>
@@ -266,7 +314,7 @@ export default function HowItWorks() {
             </div>
 
             {/* SECTION 2: PUPPY PASSPORT / PROMISE */}
-            <section id="promise" aria-labelledby="promise-title" className="tp-paper mt-24 -rotate-[0.6deg]">
+            <section id="promise" aria-labelledby="promise-title" className="tp-paper mt-24 -rotate-[0.6deg] scroll-mt-28">
               <p aria-hidden="true" className="font-scrawl text-lg text-toffee-ink">
                 puppy passport
               </p>
@@ -310,7 +358,7 @@ export default function HowItWorks() {
             </section>
 
             {/* SECTION 3: DELIVERY & COLLECTION */}
-            <section id="delivery" aria-labelledby="delivery-title" className="mt-24 grid items-center gap-10 lg:grid-cols-12">
+            <section id="delivery" aria-labelledby="delivery-title" className="mt-24 grid items-center gap-10 lg:grid-cols-12 scroll-mt-28">
               <div className="lg:col-span-6">
                 <h2 id="delivery-title" className="font-plush text-huge">
                   Delivery &amp; collection
@@ -387,7 +435,7 @@ export default function HowItWorks() {
             </section>
 
             {/* SECTION 4: WHY CHOOSE US */}
-            <section id="why" aria-labelledby="why-title" className="mt-24 grid gap-12 lg:grid-cols-12">
+            <section id="why" aria-labelledby="why-title" className="mt-24 grid gap-12 lg:grid-cols-12 scroll-mt-28">
               <div className="lg:col-span-5">
                 <h2 id="why-title" className="font-plush text-huge">
                   Why choose us

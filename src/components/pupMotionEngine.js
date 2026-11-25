@@ -258,121 +258,226 @@ export function computeHolds(rawHoldRanges, travelDistances, maxScroll) {
   return n;
 }
 
+// Helper to update screen-docked stops on mobile
+export function updateScreenStops(data) {
+  if (!data?.lane) return;
+  const whatsapp = document.querySelector('[data-whatsapp-bar]');
+  const wRect = whatsapp && whatsapp.getClientRects().length ? whatsapp.getBoundingClientRect() : null;
+  const barTop = wRect && wRect.height ? wRect.top : window.innerHeight - 6;
+  for (const st of data.stops) {
+    if (st.track.kind === 'screen') {
+      st.track.top = barTop - 159 * st.s;
+    }
+  }
+}
+
+// Compute safe area bounding rect
+export function getSafeRect(data) {
+  const clientW = document.documentElement.clientWidth;
+  const header = document.getElementById('site-header');
+  const top = (header ? header.offsetHeight : 76) + 10;
+  if (data?.lane) {
+    const whatsapp = document.querySelector('[data-whatsapp-bar]');
+    const wRect = whatsapp && whatsapp.getClientRects().length ? whatsapp.getBoundingClientRect() : null;
+    const barTop = wRect && wRect.height ? wRect.top : window.innerHeight - 6;
+    return {
+      left: 10,
+      top,
+      right: clientW - 10,
+      bottom: barTop + 40
+    };
+  }
+  const whatsapp = document.querySelector('[data-whatsapp-bar]');
+  const bottom = whatsapp && whatsapp.getClientRects().length
+    ? whatsapp.getBoundingClientRect().top
+    : window.innerHeight;
+  return {
+    left: 10,
+    top,
+    right: clientW - 10,
+    bottom: Math.min(window.innerHeight, bottom) - 10
+  };
+}
+
 // Scan DOM for all pup-stop elements and compute stops metadata
 export function scanStops(isMobile) {
-  const clientW = document.documentElement.clientWidth;
-  const clientH = window.innerHeight;
-  const headerH = document.getElementById('site-header')?.offsetHeight || 76;
-  const whatsappBar = document.querySelector('[data-whatsapp-bar]');
-  const whatsappH = whatsappBar && whatsappBar.getClientRects().length ? whatsappBar.getBoundingClientRect().height : 0;
-
-  const safe = {
+  const t = Boolean(isMobile);
+  const a = document.documentElement.clientWidth;
+  const s = window.innerHeight;
+  const n = document.getElementById('site-header')?.offsetHeight ?? 76;
+  const l = document.querySelector('[data-whatsapp-bar]');
+  const r = {
     left: 10,
-    top: headerH + 10,
-    right: clientW - 10,
-    bottom: clientH - 10 - whatsappH
+    top: n + 10,
+    right: a - 10,
+    bottom: s - 10 - (l?.getClientRects().length ? l.getBoundingClientRect().height : 0)
   };
-
-  const stopEls = [...document.querySelectorAll('.pup-stop')].filter(el => el.getClientRects().length > 0);
-  if (stopEls.length < 2) return null;
-
+  const main = document.getElementById('main') || document.querySelector('main');
   const scrollY = window.scrollY;
-  const stops = [];
-  const meta = [];
-  const rawHolds = [];
+  const o = [];
+  const c = [];
+  const h = [];
 
   const M = [0.6, 0.86];
   const E = [0.42, 0.78];
-  const targetRatios = isMobile ? M : E;
 
-  for (const el of stopEls) {
-    const rect = el.getBoundingClientRect();
+  const p = (el) => {
+    const aRect = el.getBoundingClientRect();
     const pose = el.dataset.pose || 'sit';
-    const act = el.dataset.act || '';
-    const behind = el.dataset.behind === 'true';
-    const facing = el.dataset.facing === 'left' ? -1 : 1;
+    const act = el.dataset.act ?? '';
+    const lScale = aRect.width / 300;
+    const iScale = (act === 'basket' || t) ? lScale : 1.12 * lScale;
+    const pivot = (pose === 'peek') ? { x: ANCHOR.x, y: 159 } : ANCHOR;
 
-    // Detect sticky parent
     let stickyParent = null;
-    for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
-      if (getComputedStyle(p).position === 'sticky') {
-        stickyParent = p;
+    for (let pEl = el.parentElement; pEl && pEl !== document.body; pEl = pEl.parentElement) {
+      if (getComputedStyle(pEl).position === 'sticky') {
+        stickyParent = pEl;
         break;
       }
     }
 
-    let track;
+    let u;
     if (!stickyParent) {
-      track = { kind: 'page', top: rect.top + scrollY };
+      u = { kind: 'page', top: aRect.top + scrollY };
     } else {
       const stickyTop = parseFloat(getComputedStyle(stickyParent).top) || 0;
-      const relY = rect.top - stickyParent.getBoundingClientRect().top;
+      const relY = aRect.top - stickyParent.getBoundingClientRect().top;
       const pinContainer = stickyParent.closest('[data-pin-range="true"]') || stickyParent.parentElement;
       const pinRect = pinContainer.getBoundingClientRect();
       const from = pinRect.top + scrollY - stickyTop;
       const to = pinRect.bottom + scrollY - stickyParent.offsetHeight - stickyTop;
-
       if (to <= from) {
-        track = { kind: 'page', top: rect.top + scrollY };
+        u = { kind: 'page', top: aRect.top + scrollY };
       } else {
-        track = { kind: 'pin', top: stickyTop + relY, from, to };
+        u = { kind: 'pin', top: stickyTop + relY, from, to };
       }
     }
 
-    const naturalScale = rect.width / 300;
-    const scale = isMobile || act === 'basket' ? naturalScale : 1.12 * naturalScale;
-    const pivot = pose === 'peek' ? { x: ANCHOR.x, y: 159 } : ANCHOR;
+    if (u.kind !== 'screen') {
+      u.top += pivot.y * (lScale - iScale);
+    }
 
-    const stopObj = {
-      x: rect.left + pivot.x * (naturalScale - scale),
-      track,
-      s: scale,
-      behind,
+    const m = {
+      x: aRect.left + pivot.x * (lScale - iScale),
+      track: u,
+      s: iScale,
+      behind: el.dataset.behind === 'true',
       sink: 0,
       box: getBox(pose)
     };
 
-    const sceneEl = el.closest('[data-pup-scene]');
-    stops.push(stopObj);
-    meta.push({
+    const f = el.closest('[data-pup-scene]');
+    o.push(m);
+    c.push({
       el,
-      scene: sceneEl,
+      scene: f,
       pose,
-      facing,
+      facing: el.dataset.facing === 'left' ? -1 : 1,
       act,
-      trackEl: act === 'treadmill' ? sceneEl?.querySelector('[data-treadmill]') : null
+      looks: f ? [...f.querySelectorAll('[data-pup-look]')] : [],
+      trackEl: act === 'treadmill' ? f?.querySelector('[data-treadmill]') ?? null : null
     });
 
-    // Compute raw hold range
-    if (track.kind === 'pin') {
-      rawHolds.push([track.from, track.to]);
+    const targetRatios = t ? M : E;
+    let xRange;
+    if (m.track.kind === 'pin') {
+      xRange = [m.track.from, m.track.to];
     } else {
-      const s = track.top;
-      const n = s + stopObj.box[1] * stopObj.s;
-      const l = s + stopObj.box[3] * stopObj.s;
-      const r = (n + l) / 2;
-      const viewH = safe.bottom - safe.top;
-      let o = r - (safe.top + targetRatios[1] * viewH);
-      let d = r - (safe.top + targetRatios[0] * viewH);
-      o = Math.max(o, l - safe.bottom);
-      d = Math.min(d, n - safe.top);
-      if (o > d) o = d = r - (safe.top + viewH / 2);
-      rawHolds.push([o, d]);
+      const sTop = m.track.top;
+      const nTop = sTop + m.box[1] * m.s;
+      const lTop = sTop + m.box[3] * m.s;
+      const rCenter = (nTop + lTop) / 2;
+      const viewH = r.bottom - r.top;
+      let oVal = rCenter - (r.top + targetRatios[1] * viewH);
+      let dVal = rCenter - (r.top + targetRatios[0] * viewH);
+      oVal = Math.max(oVal, lTop - r.bottom);
+      dVal = Math.min(dVal, nTop - r.top);
+      if (oVal > dVal) oVal = dVal = rCenter - (r.top + viewH / 2);
+      xRange = [oVal, dVal];
     }
+
+    if (!t && f && m.track.kind === 'page' && act !== 'basket' && act !== 'peekaboo') {
+      const eH = r.bottom - r.top;
+      const tScene = f.getBoundingClientRect().top + scrollY - r.top + 0.08 * eH;
+      const aBox = m.track.top + m.box[3] * m.s - r.bottom;
+      if (xRange[1] > tScene) {
+        const sScene = Math.max(tScene, aBox + 0.12 * eH);
+        xRange = [Math.max(aBox, sScene - Math.max(xRange[1] - xRange[0], 0.2 * eH)), sScene];
+      }
+    }
+    h.push(xRange);
+  };
+
+  const u = [...document.querySelectorAll('[data-pup-stop]')].filter(e => e.getClientRects().length);
+  if (!u.length) return null;
+
+  if (t) {
+    const laneStops = u.filter(e => e.dataset.lane === 'true');
+    const heroStop = laneStops[0];
+    const footerStop = laneStops.length > 1 ? laneStops[laneStops.length - 1] : undefined;
+    if (heroStop) p(heroStop);
+
+    const heroScene = c[0]?.scene ?? null;
+    const scenes = [...document.querySelectorAll('#main [data-pup-scene], main [data-pup-scene]')].filter(
+      e => e !== heroScene && e.getClientRects().length
+    );
+    const dScale = Math.min(0.62, Math.max(0.5, a / 650));
+    const mBox = getBox('peek');
+    const wSink = ANCHOR.y - 159;
+
+    scenes.forEach((sc, idx) => {
+      const isLeft = idx % 2 === 0;
+      const nx = isLeft ? r.left + 2 - mBox[0] * dScale : r.right - 2 - mBox[2] * dScale;
+      o.push({
+        x: nx,
+        track: { kind: 'screen', top: 0 },
+        s: dScale,
+        behind: false,
+        sink: wSink,
+        box: mBox
+      });
+      c.push({
+        el: sc,
+        scene: sc,
+        pose: 'peek',
+        facing: isLeft ? 1 : -1,
+        act: 'lane',
+        looks: [],
+        trackEl: null
+      });
+      const rect = sc.getBoundingClientRect();
+      const i_top = rect.top + scrollY - 0.42 * s;
+      const p_bot = rect.bottom + scrollY - 0.58 * s;
+      h.push(i_top <= p_bot ? [i_top, p_bot] : [(i_top + p_bot) / 2, (i_top + p_bot) / 2]);
+    });
+
+    if (footerStop) p(footerStop);
+  } else {
+    u.forEach(p);
   }
 
-  const travelDistances = stops.slice(1).map((sNext, i) => {
-    const sCur = stops[i];
-    const verticalLead = (E[1] - E[0]) * clientH;
-    const baseDist = (isMobile ? 0.32 : 0.5) * clientH;
-    const dx = Math.abs(sNext.x + ANCHOR.x * sNext.s - (sCur.x + ANCHOR.x * sCur.s));
-    return Math.min(1.4 * clientH, Math.max(baseDist, 1.15 * Math.hypot(dx, verticalLead)));
-  });
-
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  const holds = computeHolds(rawHolds, travelDistances, maxScroll);
+  const holds = computeHolds(
+    h,
+    o.slice(1).map((cur, i) => {
+      const prev = o[i];
+      const l = (E[1] - E[0]) * s;
+      const rDist = (t ? 0.32 : 0.5) * s;
+      return Math.min(1.4 * s, Math.max(rDist, 1.15 * Math.hypot(Math.abs(cur.x + ANCHOR.x * cur.s - (prev.x + ANCHOR.x * prev.s)), l)));
+    }),
+    maxScroll
+  );
 
-  return { stops, meta, holds, safe, blend: 0.12 * clientH };
+  return {
+    lane: t,
+    stops: o,
+    meta: c,
+    holds,
+    safe: r,
+    blend: 0.12 * s,
+    mainTop: main ? main.getBoundingClientRect().top + scrollY : 0
+  };
 }
 
 // Articulated Pup Controller Class

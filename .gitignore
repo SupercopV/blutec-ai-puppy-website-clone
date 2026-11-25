@@ -33,8 +33,20 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 
-# Scrape and cache files
+# Scrape, test, and cache files
 scraped_pages/
 scraped_css/
 scripts/analysis/
 *.rsc.txt
+tmp_chrome_profile/
+screenshot_*.png
+top_bar.jpg
+scripts/chunks/
+scripts/video_frames/
+scripts/new_video_frames/
+scripts/mobile_audit/
+scripts/motion_qa/
+scripts/**/*.png
+scripts/**/*.jpg
+scripts/**/*.jpeg
+scripts/**/*.mp4

@@ -4,13 +4,18 @@ import {
   ANCHOR,
   scanStops,
   evaluatePosition,
-  snapScroll,
+  updateScreenStops,
+  getSafeRect,
   PupController,
   BASE_POSES
 } from './pupMotionEngine';
 
 const PAW_PATH =
   "M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z";
+
+const checkMobile = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia('(max-width: 767px), (pointer: coarse) and (max-height: 519px)').matches;
 
 export default function PupRunner() {
   const layerRef = useRef(null);
@@ -80,9 +85,6 @@ export default function PupRunner() {
   };
 
   useEffect(() => {
-    // Hide static scene puppies on home page while runner is active
-    document.documentElement.dataset.pup = 'active';
-
     const layerEl = layerRef.current;
     const actorEl = actorRef.current;
     const bodyEl = bodyRef.current;
@@ -90,9 +92,12 @@ export default function PupRunner() {
     const printsEl = printsRef.current;
     if (!layerEl || !actorEl || !bodyEl || !svgEl || !printsEl) return;
 
-    const isMobile = window.innerWidth < 768;
+    const isMobile = checkMobile();
     let data = scanStops(isMobile);
     if (!data || data.stops.length < 2) return;
+
+    // Set document pup state: 'lane' on mobile (<768px), 'live' on desktop
+    document.documentElement.dataset.pup = data.lane ? 'lane' : 'live';
 
     const pawPool = Array.from(printsEl.querySelectorAll('svg'));
     let pawIndex = 0;
@@ -112,8 +117,20 @@ export default function PupRunner() {
     let lastHallX = null;
 
     // Initial positioning
-    const initialPos = evaluatePosition(data.stops, data.holds, window.scrollY, data.safe, data.blend);
-    actorEl.style.transform = `translate3d(${(initialPos.x - ANCHOR.x * initialPos.s).toFixed(2)}px, ${(initialPos.y - ANCHOR.y * initialPos.s).toFixed(2)}px, 0)`;
+    updateScreenStops(data);
+    const initialSafe = getSafeRect(data);
+    const initialPos = evaluatePosition(data.stops, data.holds, window.scrollY, initialSafe, data.blend);
+    const initFromStop = data.stops[initialPos.k];
+    const initToStop = initialPos.t > 0 ? data.stops[initialPos.k + 1] : initFromStop;
+    const initIsLaneScreen = Boolean(
+      data.lane &&
+      initFromStop?.track?.kind === 'screen' &&
+      initToStop?.track?.kind === 'screen'
+    );
+    layerEl.dataset.anchor = initIsLaneScreen ? 'bottom' : 'top';
+    const initEv = initIsLaneScreen ? layerEl.getBoundingClientRect().top : 0;
+
+    actorEl.style.transform = `translate3d(${(initialPos.x - ANCHOR.x * initialPos.s).toFixed(2)}px, ${(initialPos.y - ANCHOR.y * initialPos.s - initEv).toFixed(2)}px, 0)`;
     bodyEl.style.transform = `scale(${initialPos.s.toFixed(4)})`;
     layerEl.dataset.front = String(initialPos.front);
     layerEl.hidden = false;
@@ -143,16 +160,23 @@ export default function PupRunner() {
         lastScrollMoveTime = now;
       }
 
-      // If scroll has rested for > 250ms, snap to closest stable stop
-      const isScrollResting = now - lastScrollMoveTime > 0.25;
-      const targetScrollY = isScrollResting
-        ? snapScroll(data.stops, data.holds, currentScrollY)
-        : currentScrollY;
-
-      const pos = evaluatePosition(data.stops, data.holds, targetScrollY, data.safe, data.blend);
+      updateScreenStops(data);
+      const safe = getSafeRect(data);
+      const pos = evaluatePosition(data.stops, data.holds, currentScrollY, safe, data.blend);
       const isDocked = pos.t === 0;
       const stopIdx = pos.k;
-      const mainTop = document.querySelector('main')?.offsetTop || 0;
+      const mainTop = data.mainTop || document.querySelector('main')?.offsetTop || 0;
+
+      const fromStop = data.stops[pos.k];
+      const toStop = pos.t > 0 ? data.stops[pos.k + 1] : fromStop;
+      const isLaneScreen = Boolean(
+        data.lane &&
+        fromStop?.track?.kind === 'screen' &&
+        toStop?.track?.kind === 'screen'
+      );
+
+      layerEl.dataset.anchor = isLaneScreen ? 'bottom' : 'top';
+      const ev = isLaneScreen ? layerEl.getBoundingClientRect().top : 0;
 
       if (isDocked) {
         if (lastDockedIndex !== stopIdx) {
@@ -218,35 +242,37 @@ export default function PupRunner() {
           }
         }
 
-        // Paw print stamping along the ground
-        const step = Math.floor(pos.walked / (34 * pos.s));
-        if (pos.k === lastStepStop && step !== lastStepIndex && !pos.airborne && lastPos && pawPool.length > 0) {
-          const n = 1 & step;
-          const legX = n ? 186 : 110;
-          const r = pos.x - ANCHOR.x * pos.s;
-          const i = pos.y - ANCHOR.y * pos.s;
-          const footX = r + (controller.facingDir > 0 ? legX : 300 - legX) * pos.s;
-          const footY = i + 226 * pos.s + currentScrollY - mainTop + (n ? -4 : 4) * pos.s;
-          const angle = Math.atan2(pos.y - lastPos.y + scrollDelta, pos.x - lastPos.x) + Math.PI / 2;
-          const size = 14 * Math.max(0.75, 1.5 * pos.s);
+        // Paw print stamping along the ground (desktop mode only)
+        if (!data.lane) {
+          const step = Math.floor(pos.walked / (34 * pos.s));
+          if (pos.k === lastStepStop && step !== lastStepIndex && !pos.airborne && lastPos && pawPool.length > 0) {
+            const n = 1 & step;
+            const legX = n ? 186 : 110;
+            const r = pos.x - ANCHOR.x * pos.s;
+            const i = pos.y - ANCHOR.y * pos.s;
+            const footX = r + (controller.facingDir > 0 ? legX : 300 - legX) * pos.s;
+            const footY = i + 226 * pos.s + currentScrollY - mainTop + (n ? -4 : 4) * pos.s;
+            const angle = Math.atan2(pos.y - lastPos.y + scrollDelta, pos.x - lastPos.x) + Math.PI / 2;
+            const size = 14 * Math.max(0.75, 1.5 * pos.s);
 
-          const pawSvg = pawPool[pawIndex % pawPool.length];
-          pawIndex++;
+            const pawSvg = pawPool[pawIndex % pawPool.length];
+            pawIndex++;
 
-          pawSvg.style.transform = `translate(${(footX - size / 2).toFixed(1)}px, ${(footY - size / 2).toFixed(1)}px) rotate(${angle.toFixed(3)}rad)`;
-          pawSvg.style.width = pawSvg.style.height = `${size.toFixed(1)}px`;
-          pawSvg.animate(
-            [
-              { opacity: 0 },
-              { opacity: 0.45, offset: 0.08 },
-              { opacity: 0.45, offset: 0.5 },
-              { opacity: 0 }
-            ],
-            { duration: 2600, easing: 'ease-out' }
-          );
+            pawSvg.style.transform = `translate(${(footX - size / 2).toFixed(1)}px, ${(footY - size / 2).toFixed(1)}px) rotate(${angle.toFixed(3)}rad)`;
+            pawSvg.style.width = pawSvg.style.height = `${size.toFixed(1)}px`;
+            pawSvg.animate(
+              [
+                { opacity: 0 },
+                { opacity: 0.45, offset: 0.08 },
+                { opacity: 0.45, offset: 0.5 },
+                { opacity: 0 }
+              ],
+              { duration: 2600, easing: 'ease-out' }
+            );
+          }
+          lastStepStop = pos.k;
+          lastStepIndex = step;
         }
-        lastStepStop = pos.k;
-        lastStepIndex = step;
       }
 
       lastPos = { x: pos.x, y: pos.y };
@@ -260,7 +286,7 @@ export default function PupRunner() {
       });
 
       // Update Actor DOM position
-      actorEl.style.transform = `translate3d(${(pos.x - ANCHOR.x * pos.s).toFixed(2)}px, ${(pos.y - ANCHOR.y * pos.s).toFixed(2)}px, 0)`;
+      actorEl.style.transform = `translate3d(${(pos.x - ANCHOR.x * pos.s).toFixed(2)}px, ${(pos.y - ANCHOR.y * pos.s - ev).toFixed(2)}px, 0)`;
       bodyEl.style.transform = `scale(${pos.s.toFixed(4)})`;
       layerEl.dataset.front = String(pos.front);
       actorEl.dataset.holding = String(isDocked);
@@ -292,9 +318,11 @@ export default function PupRunner() {
     const handleResize = () => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
-        const nextData = scanStops(window.innerWidth < 768);
+        const isMob = checkMobile();
+        const nextData = scanStops(isMob);
         if (nextData && nextData.stops.length >= 2) {
           data = nextData;
+          document.documentElement.dataset.pup = data.lane ? 'lane' : 'live';
         }
       }, 120);
     };

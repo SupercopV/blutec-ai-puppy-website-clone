@@ -94,6 +94,27 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     to={link.path}
+                    onClick={(e) => {
+                      if (link.path.includes('#')) {
+                        const [targetPath, hash] = link.path.split('#');
+                        if (currentPath === targetPath) {
+                          e.preventDefault();
+                          const el = document.getElementById(hash);
+                          if (el) {
+                            const headerOffset = 90;
+                            const elementPosition = el.getBoundingClientRect().top;
+                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                            window.scrollTo({
+                              top: Math.max(0, offsetPosition),
+                              behavior: 'smooth'
+                            });
+                            if (window.location.hash !== `#${hash}`) {
+                              window.history.pushState(null, '', link.path);
+                            }
+                          }
+                        }
+                      }
+                    }}
                     className={`font-semibold underline-offset-4 hover:text-honey hover:underline transition-colors ${
                       isActive ? 'text-honey' : 'text-milk/90'
                     }`}
